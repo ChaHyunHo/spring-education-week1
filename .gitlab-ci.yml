@@ -1,3 +1,10 @@
+image:
+  name: klakegg/hugo:0.110.0-ext-alpine
+  entrypoint: [""]
+
+variables:
+  GIT_DEPTH: 0  # shallow clone 방지
+
 stages:
   - mirror
 
