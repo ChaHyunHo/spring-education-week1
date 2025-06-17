@@ -1,4 +1,7 @@
 spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
   application:
     name: spring-education-week1
 
@@ -18,12 +21,19 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
+        # MySQL 8 버전에 맞는 Dialect(방언) 설정
         dialect: org.hibernate.dialect.MySQL8Dialect
 
 
 logging:
   level:
     org.hibernate.sql: DEBUG
+
+# Swagger UI 설정
+springdoc:
+  swagger-ui:
+    enabled: true
+
 
 
 server:
