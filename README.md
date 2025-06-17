@@ -1391,6 +1391,18 @@ public static void main(String[] args) {
     }
 ```
 
+#### 결과
+```
+- 전자제품
+  - 노트북
+    - 게이밍 노트북
+  - 스마트폰
+    - 핸드폰 케이스
+  - 주방가전
+    - 믹서기
+Map 방식: 0.144542 ms
+```
+
 <br><br><br>
 출처: 팀스파르타 <br>
 Copyright ⓒ TeamSparta All rights reserved.
