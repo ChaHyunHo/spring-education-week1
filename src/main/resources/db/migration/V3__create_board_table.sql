@@ -1,0 +1,11 @@
+CREATE TABLE board (
+  board_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  board_name VARCHAR(50) NOT NULL,
+  board_user_id VARCHAR(50) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  board_title VARCHAR(255) NOT NULL,
+  board_content LONGTEXT NOT NULL,
+  board_category_id BIGINT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
