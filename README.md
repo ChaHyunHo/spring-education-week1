@@ -2,13 +2,15 @@
 
 ## 📚 목차
 
-- [1일차](#왜-스프링일까?)
-- [2일차](#Java-객체지향-프로그래밍)
+- [1일차](#tag1)
+- [2일차](#tag2)
 - [3일차](#3-주의-사항)
 - [4일차](#3-주의-사항)
 - [5일차](#3-주의-사항)
 
 ---
+
+#### tag1
 
 #### 1. 왜 스프링일까?
 
@@ -609,6 +611,8 @@ docker run --name spring-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL
     - `@SpringBootApplication` 클래스를 실행하고, **로그에 DB 연결 에러가 없는지** 확인합니다.
 - **2. Swagger UI 접속**
     - 브라우저에서 **`http://localhost:8080/swagger-ui/index.html`** 로 접속하여 API 문서 페이지가 정상적으로 표시되는지 확인합니다.
+
+#### tag2
 
 ## **1. Java 객체지향 프로그래밍 ☕**
 
