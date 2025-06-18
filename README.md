@@ -4,9 +4,8 @@
 
 - [1일차](#tag1)
 - [2일차](#tag2)
-- [3일차](#3-주의-사항)
-- [4일차](#3-주의-사항)
-- [5일차](#3-주의-사항)
+- [3일차](#tag3)
+- [4일차](#tag4)
 
 ---
 
@@ -613,6 +612,8 @@ docker run --name spring-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL
     - 브라우저에서 **`http://localhost:8080/swagger-ui/index.html`** 로 접속하여 API 문서 페이지가 정상적으로 표시되는지 확인합니다.
 
 #### tag2
+
+- [목차](#tag1)
 
 ## **1. Java 객체지향 프로그래밍 ☕**
 
@@ -1567,6 +1568,10 @@ Map 방식: 0.144542 ms
 재귀 방식: 85.677083 ms
 ```
 
+#### tag3
+
+- [목차](#tag1)
+
 ## 1. ORM과 Spring Data JPA, Hibernate 이해 🧐
 
 Spring Data JPA는 Java Persistence API(JPA)를 기반으로 데이터를 다루는 데 필요한 코드를 최소화하여 생산성을 높이는 프레임워크입니다.
@@ -1989,6 +1994,10 @@ User findByUsernameNative(String username);
     - `UserRepository`를 작성합니다.
 
 ### **이번에 배울 것**
+
+#### tag4
+
+- [목차](#tag1)
 
 <aside>
 ❗ 이번 학습에서는 데이터베이스 설계의 기초부터 실전까지 모든 것을 아우르는 시간을 갖습니다. 
