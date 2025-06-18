@@ -46,7 +46,7 @@
         - [기본 개념 및 CRUD: `JpaRepository` 인터페이스](#기본-개념-및-crud-jparepository-인터페이스)
         - [메서드 이름 기반 쿼리](#메서드-이름-기반-쿼리-Query-from-Method-Names)
         - [`@Query`를 이용한 커스텀 쿼리](#query를-이용한-커스텀-쿼리)
-- [6. 실습: DB 테이블 설계부터 Repository 작성까지 🚀](#6-실습-db-테이블-설계부터-repository-작성까지-)
+    - [6. 실습: DB 테이블 설계부터 Repository 작성까지 🚀](#6-실습-db-테이블-설계부터-repository-작성까지-)
 - [4일차](#tag4)
     - [1. 단일 테이블 구조 설계](#1-단일-테이블-구조-설계-)
         - [테이블 기본 구조와 PK 정의](#테이블-기본-구조와-pk-정의)
