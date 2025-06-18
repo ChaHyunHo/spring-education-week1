@@ -1404,6 +1404,378 @@ Map 방식: 0.144542 ms
 재귀 방식: 85.677083 ms
 ```
 
+
+## 1. ORM과 Spring Data JPA, Hibernate 이해 🧐
+
+Spring Data JPA는 Java Persistence API(JPA)를 기반으로 데이터를 다루는 데 필요한 코드를 최소화하여 생산성을 높이는 프레임워크입니다. Hibernate는 JPA의 구현체로, 자바 객체와 데이터베이스 간의 매핑(ORM)을 수행합니다.
+
+### ORM의 등장 배경: 개발자의 고충
+
+- **과거의 개발 방식 (JDBC)**Java
+    - 개발자는 자바 코드 내에 SQL 쿼리를 직접 작성하고, `ResultSet`의 결과를 다시 자바 객체로 한 줄 한 줄 변환하는 반복적인 작업을 수행해야 했습니다.
+
+```
+// 옛날 방식 (JDBC)
+String sql = "SELECT * FROM users WHERE id = ?";
+PreparedStatement pstmt = connection.prepareStatement(sql);
+pstmt.setLong(1, 1L);
+
+ResultSet rs = pstmt.executeQuery();
+User user = new User();
+if (rs.next()) {
+    user.setId(rs.getLong("id"));
+    user.setUsername(rs.getString("username"));
+}
+```
+
+- **객체-관계 불일치 (Object-Relational Impedance Mismatch)**
+    - 자바는 **객체 지향** 언어지만, 데이터베이스는 **관계형(테이블)** 구조를 가집니다. 이 둘의 패러다임이 달라 발생하는 근본적인 문제로 인해, 개발자는 핵심 비즈니스 로직보다 데이터 변환 및 SQL 작성에 많은 시간을 소모했습니다.
+
+### ORM과 Hibernate: 문제 해결사
+
+- **ORM(Object-Relational Mapping)이란?**
+    - 위에서 언급된 '객체-관계 불일치' 문제를 해결하기 위해 등장한 기술입니다. 객체와 DB 테이블을 자동으로 매핑하여, 개발자가 SQL 없이 객체 중심으로 데이터를 다룰 수 있게 해줍니다.
+- **Hibernate의 등장과 역할**
+    - **Hibernate**는 이 ORM 개념을 구현한 가장 대표적인 프레임워크입니다.
+    - 개발자가 `userRepository.save(user);`와 같이 객체 중심 코드를 작성하면, Hibernate가 적절한 SQL을 생성하고 실행하여 복잡한 데이터 변환 과정을 마법처럼 처리해줍니다.
+- **ORM의 장점**
+    - **생산성 향상**: SQL보다 객체 중심의 코드로 비즈니스 로직에 집중할 수 있습니다.
+    - **유지보수 용이**: 객체 모델만 수정하면 되므로 관리가 편합니다.
+    - **DB 독립성**: 특정 데이터베이스에 종속되지 않는 코드를 작성할 수 있습니다.
+    - **고급 기능**: Hibernate는 지연 로딩(Lazy Loading), 캐싱 등 성능 최적화를 위한 고급 기능을 제공합니다.
+
+### JPA와 Spring Data JPA: 표준과 편의성
+
+- **표준의 필요성 (JPA의 탄생)**
+    - Hibernate는 매우 성공적이었지만, 모든 코드가 Hibernate에 종속되는 **'벤더 종속성(Vendor Lock-in)'** 문제가 있었습니다. 다른 ORM 기술로 전환하려면 코드를 전부 수정해야 했기 때문입니다.
+    - 이 문제를 해결하기 위해 자바 진영에서는 ORM 기술에 대한 '**표준 명세(Standard Specification)**'인 **JPA(Java Persistence API)**를 만들었습니다.
+- **JPA(Java Persistence API)란?**
+    - 데이터베이스 영속성을 다루는 자바 기술에 대한 **API 명세(Specification)이자 규칙**입니다.
+    - `@Entity`, `@Id` 같은 어노테이션과 `persist()`, `find()` 같은 메서드를 표준으로 정의합니다.
+    - **주의**: JPA 자체는 실제 동작하는 코드가 아니라, ORM 프레임워크들이 따라야 할 '**설계도**'입니다.
+- **관계 요약**
+    - **JPA (설계도)**: 데이터베이스 연동 기술에 대한 표준 명세(인터페이스)
+    - **Hibernate (실제 일꾼)**: JPA라는 설계도를 보고 실제로 구현한 가장 유명한 구현체
+    - **Spring Data JPA (편의 도구)**: Hibernate 같은 JPA 구현체를 더 쉽고 편하게 사용하도록 한 번 더 감싸서, `Repository` 인터페이스만으로도 개발이 가능하게 만든 스프링 프레임워크의 모듈
+
+## 2. Flyway를 활용한 DB 형상 관리 🗄️
+
+애플리케이션 코드는 Git으로 버전을 관리하는데, 데이터베이스의 스키마(테이블 구조, 제약조건 등)는 어떻게 관리할까요? Flyway는 **데이터베이스의 변경 이력을 코드로 관리**하여 이 문제를 해결하는 DB 마이그레이션 자동화 도구입니다.
+
+### DB 형상 관리, 왜 중요한가?
+
+팀 단위 개발 시, 각자 로컬 DB에서 작업하다 보면 스키마가 달라지는 경우가 많습니다. 누군가는 `ALTER TABLE`로 컬럼을 추가하고, 누군가는 `CREATE TABLE`로 새 테이블을 만듭니다. 이 변경 내역이 공유되지 않으면, 다른 팀원의 환경에서는 애플리케이션이 오류를 뿜는 '**DB 동기화 지옥**'이 펼쳐집니다. Flyway는 모든 DB 변경 사항을 파일로 기록하여, 팀 전체가 동일한 스키마 버전을 유지하도록 돕습니다.
+
+### Flyway의 동작 원리
+
+Flyway의 핵심은 **`flyway_schema_history`**라는 메타데이터 테이블입니다.
+
+1. 애플리케이션이 시작되면, Flyway는 DB에 `flyway_schema_history` 테이블이 있는지 확인하고 없으면 자동으로 생성합니다.
+2. 설정한 마이그레이션 파일 위치(`locations`)를 스캔하여 SQL 파일 목록을 읽어옵니다.
+3. `flyway_schema_history` 테이블의 기록과 SQL 파일 목록을 비교하여, 아직 실행되지 않은 새로운 버전의 SQL 파일을 찾습니다.
+4. 새로운 SQL 파일들을 **버전 순서대로** DB에 실행(migrate)합니다.
+5. 실행이 성공하면, 해당 파일의 버전, 이름, 실행 시간 등의 정보를 `flyway_schema_history` 테이블에 기록합니다.
+
+이 과정을 통해, Flyway는 어떤 변경사항이 언제 적용되었는지 추적하며, 항상 최신 버전의 DB 스키마를 유지합니다.
+
+### Flyway 설정 및 사용법
+
+- **`build.gradle` 의존성 추가**Groovy
+```
+dependencies {
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+}
+```
+- `application.yml` 설정YAML
+```
+spring:
+  flyway:
+    enabled: true
+    locations: classpath:db/migration # 마이그레이션 SQL 파일이 위치할 경로
+    baseline-on-migrate: true # 기존에 테이블이 있는 DB에 Flyway를 처음 적용할 때 사용
+```
+- **마이그레이션 파일 작성**
+  SQL 파일로 데이터베이스 변경 이력을 관리하며, 파일명 규칙을 반드시 따라야 합니다.
+    - **명명 규칙**: `V<버전>__<설명>.sql` (V, 언더스코어 2개 `__`는 필수)
+    - **예시**: `V1__create_users_table.sql`SQL
+```
+CREATE TABLE user (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Flyway의 장점
+
+- **신뢰성 있는 DB 배포**: 모든 변경 사항이 코드로 관리되므로, 개발/스테이징/운영 환경 모두에서 동일한 스키마를 보장하여 배포 안정성을 높입니다.
+- **명확한 변경 이력 관리**: `flyway_schema_history` 테이블과 버전 관리된 SQL 파일들을 통해 누가, 언제, 어떤 이유로 DB를 변경했는지 명확하게 추적할 수 있습니다.
+- **팀원 간의 손쉬운 동기화**: Git을 통해 마이그레이션 파일을 공유하기만 하면, 모든 팀원이 `git pull` 후 애플리케이션을 실행하는 것만으로 최신 DB 스키마를 맞출 수 있습니다.
+
+
+## 3. HikariCP를 이용한 DB 커넥션 풀 관리 🏊
+
+데이터베이스 스키마가 준비되면, 애플리케이션이 데이터베이스와 효율적으로 통신할 방법을 설정해야 합니다. 이때 **DB 커넥션 풀(Connection Pool)**이 핵심적인 역할을 합니다.
+
+- **커넥션 풀이란?**
+    - 데이터베이스 접속(Connection) 객체를 미리 여러 개 만들어 '**풀(Pool)**'에 저장해두고, 필요할 때마다 빌려 쓰고 반납하는 기술입니다.
+    - 매번 요청이 올 때마다 새로운 연결을 만드는 비싼 과정(TCP/IP 핸드셰이크, DB 인증 등)을 생략하여 **애플리케이션의 전반적인 응답 속도와 성능을 크게 향상**시킵니다.
+- **HikariCP의 역할**
+    - **HikariCP**는 Spring Boot 2.0부터 기본으로 채택된 매우 빠르고 안정적인 커넥션 풀 라이브러리입니다.
+    - 개발자가 별도 설정을 하지 않아도 Spring Boot가 자동으로 HikariCP를 설정하여 최적의 성능을 제공합니다.
+
+### 왜 Spring Boot는 HikariCP를 선택했는가?
+
+과거에는 **Apache Commons DBCP**나 **Tomcat-JDBC Pool** 같은 커넥션 풀이 널리 사용되었습니다. 이들도 훌륭한 라이브러리지만, **개발자들은 더 높은 성능과 안정성을 갈망했습니다.**
+
+**HikariCP**는 바로 이 지점에서 등장했습니다. 'Hikari(히카리)'는 일본어로 '빛'을 의미하며, 이름처럼 빛의 속도를 지향합니다. 바이트 코드 레벨까지 최적화하는 등 극단적인 성능 개선을 통해 기존 커넥션 풀들의 성능을 압도했습니다. 벤치마크에서 월등한 성능과 안정성을 입증하자, **Spring Boot 2.0부터는 HikariCP를 기본 커넥션 풀로 채택**하여 모든 개발자가 별도 설정 없이도 최고의 성능을 누릴 수 있도록 했습니다.
+
+### HikariCP의 장점과 단점
+
+**✅ 장점 (Advantages)**
+
+- **압도적인 성능**: 바이트 코드 조작, Lock 최소화 등 저수준 최적화를 통해 다른 어떤 커넥션 풀보다 빠릅니다. 이는 대규모 트래픽 상황에서 큰 차이를 만듭니다.
+- **높은 안정성과 신뢰성**: 커넥션 누수(Leak)를 방지하고, 유휴 커넥션을 효과적으로 관리하는 등 안정성에 초점을 맞춰 설계되었습니다.
+- **간결한 구성**: 복잡하고 불필요한 설정 옵션을 과감히 제거했습니다. 개발자가 꼭 필요한 몇 가지 옵션만으로 쉽게 설정하고 안정적으로 운영할 수 있습니다.
+- **활발한 유지보수**: Spring Boot의 기본 값으로 채택되면서 거대한 사용자층을 확보했고, 지금도 매우 활발하게 유지보수되고 있습니다.
+
+**❌ 단점 (Disadvantages)**
+
+- **제한적인 고급 기능**: 간결함을 추구하는 철학 때문에 아주 특수한 상황에서 필요한 일부 고급 모니터링이나 유연한 확장 기능이 부족하다고 느껴질 수 있습니다.
+- **복잡한 내부 구조**: 사용법은 간단하지만, 최고의 성능을 위해 내부 구현은 매우 복잡합니다. 따라서 커넥션 풀 자체의 동작 방식을 깊게 디버깅해야 할 때 진입 장벽이 높을 수 있습니다.
+
+### **주요 설정 (`application.yml`)**
+
+기본값으로도 훌륭하지만, 서비스의 특성에 맞게 아래와 같이 상세 설정이 가능합니다.
+```
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 10  # 최대 커넥션 개수
+      connection-timeout: 30000 # 커넥션을 얻기 위해 대기하는 최대 시간 (ms)
+      max-lifetime: 1800000 # 커넥션의 최대 수명 (ms)
+```
+
+## 4. JPA Entity 설계 📝
+
+JPA 엔티티(Entity)는 데이터베이스 테이블에 대응하는 자바 클래스입니다. 단순히 데이터를 담는 객체를 넘어, JPA가 관리하며 데이터베이스와 직접 상호작용하는 핵심적인 역할을 합니다. `@Entity` 어노테이션이 붙은 클래스는 JPA가 관리하는 '객체'가 됩니다.
+
+### 핵심 어노테이션: `@Entity`와 `@Table`
+
+- **`@Entity`**
+    - 이 클래스가 JPA가 관리해야 하는 엔티티임을 표시합니다. **필수 어노테이션**입니다.
+    - 주의: 기본 생성자(no-args constructor)가 반드시 필요하며, final 클래스에는 사용할 수 없습니다.
+- **`@Table(name = "...")`**
+    - 엔티티 클래스가 매핑될 데이터베이스 테이블의 이름을 지정합니다.
+    - 만약 생략하면, 엔티티 클래스 이름을 테이블 이름으로 사용합니다. (예: `User` -> `user`)
+
+### 네이밍 컨벤션: 이름 설정 시 고려사항
+
+테이블 및 컬럼 이름을 정할 때는 일관된 규칙을 따르는 것이 매우 중요합니다.
+
+- **테이블/컬럼명 설정 시 주의점**
+    - **네이밍 전략(Naming Strategy)**
+        - Java에서는 `camelCase`(예: `userName`)를, DB에서는 `snake_case`(예: `user_name`)를 사용하는 것이 일반적입니다. Spring Boot는 이 변환을 자동으로 처리해주는 전략(SpringPhysicalNamingStrategy)을 기본으로 사용하므로, `@Column(name = "user_name")`처럼 명시하지 않아도 필드 `userName`은 자동으로 컬럼 `user_name`에 매핑됩니다.
+    - **DB 예약어 주의**
+        - `USER`, `ORDER`, `GROUP` 등은 데이터베이스의 예약어일 수 있습니다. **테이블명이나 컬럼명으로 사용하면 예기치 않은 SQL 오류가 발생할 수 있으므로 무조건 피하는 것이 좋습니다.**
+          부득이하게 사용해야 할 경우, @Table(name = "`order`")처럼 백틱()으로 감싸서 이스케이프 처리를 할 수 있습니다.
+
+- **테이블명, 단수형 vs 복수형?**
+    - **전통적인 방식 (복수형 - `users`)**
+        - 데이터베이스 관점에서는 테이블을 데이터의 '집합(Collection)'으로 봅니다. 따라서 '사용자들의 모음'이라는 의미로 `users`, `orders`처럼 복수형을 사용하는 것이 일반적이었습니다.
+    - **ORM/JPA 관점 (단수형 - `user`)**
+        - 최근 ORM이 널리 쓰이면서 생긴 경향입니다. ORM은 `User`라는 엔티티 클래스(객체) 하나가 `user`라는 테이블 하나와 1:1로 매핑된다고 봅니다. 즉, 객체의 관점을 따라 단수형으로 이름을 일치시키는 것이 더 직관적이라는 것입니다.
+
+    - 어느 한쪽이 절대적으로 옳다고 할 수는 없습니다. 하지만 최신 개발 트렌드에서는 ORM의 관점을 따라 **단수형 명명 규칙을 사용하는 경우가 많습니다.** 가장 중요한 것은, **프로젝트 내에서 하나의 컨벤션을 정하고 일관되게 지키는 것입니다.**
+
+- **상태(Boolean) 타입 필드 네이밍**
+    - **Java/API 네이밍 (`is-` / `has-` / `can-`)**
+        - Boolean 타입의 필드명은 그 자체로 '참/거짓'으로 답할 수 있는 질문이 되도록 짓는 것이 가장 좋습니다. `is~`로 시작하는 네이밍은 **자바빈(JavaBean) 표준 명세**에 따른 규칙으로, 여러 프레임워크(Lombok, Jackson 등)가 이를 자동으로 인지하여 가독성과 개발 편의성을 높여줍니다.
+        - **가독성**: `if (user.isActive())` 처럼 코드가 자연스러운 영어 문장처럼 읽힙니다.
+    - **대표 접두사**
+        - **`is~`**: 상태를 나타낼 때 (e.g., `isActive`, `isDeleted`, `isVisible`)
+        - **`has~`**: 소유나 포함 여부를 나타낼 때 (e.g., `hasProfileImage`, `hasCoupon`)
+        - **`can~`**: 가능/권한 여부를 나타낼 때 (e.g., `canPurchase`, `canComment`)
+
+### 기본 키(Primary Key) 매핑: `@Id`와 `@GeneratedValue`
+
+- **`@Id`**
+    - 테이블의 기본 키(PK)에 해당하는 필드를 나타냅니다. 모든 엔티티는 `@Id`가 붙은 필드를 반드시 가져야 합니다.
+- **`@GeneratedValue(strategy = ...)`**
+    - 기본 키의 값을 데이터베이스가 자동으로 생성하도록 위임하는 방법을 지정합니다.
+    - **`GenerationType.IDENTITY`**: **MySQL**의 `AUTO_INCREMENT`처럼 데이터베이스가 직접 ID를 생성하고 관리하게 합니다. 데이터가 저장(INSERT)된 후에야 ID 값을 알 수 있습니다.
+    - **`GenerationType.SEQUENCE`**: **Oracle** 등에서 사용하는 시퀀스 객체를 통해 ID를 할당받습니다.
+    - **`GenerationType.AUTO`**: (기본값) 사용하는 데이터베이스 방언(Dialect)에 맞춰 위 전략 중 하나를 JPA가 자동으로 선택합니다.
+
+### 필드-컬럼 매핑: `@Column`과 기타 어노테이션
+
+- **`@Column`**
+    - 엔티티의 필드와 테이블의 컬럼을 매핑합니다. 다양한 속성을 통해 컬럼의 제약조건 등을 설정할 수 있습니다.
+    - **`name`**: 매핑할 테이블 컬럼의 이름을 지정합니다. (예: `createdAt` -> `created_at`)
+    - **`nullable = false`**: `NOT NULL` 제약조건을 설정합니다.
+    - **`unique = true`**: `UNIQUE` 제약조건을 설정합니다.
+    - **`length`**: `VARCHAR` 타입 컬럼의 길이를 지정합니다.
+- **`@CreationTimestamp` / `@UpdateTimestamp`** (Hibernate 기능)
+    - 데이터가 처음 생성될 때(`@CreationTimestamp`) 또는 수정될 때(`@UpdateTimestamp`)의 시간을 자동으로 기록해주는 편리한 기능입니다.
+- **`@DynamicInsert` / `@DynamicUpdate`**
+    - **`@DynamicInsert`**: `INSERT` SQL 생성 시, 값이 `null`이 아닌 필드만으로 쿼리를 만듭니다. 데이터베이스에 설정된 `DEFAULT` 값을 적용하고 싶을 때 유용합니다.
+    - **`@DynamicUpdate`**: `UPDATE` SQL 생성 시, 변경된 필드만으로 쿼리를 만듭니다. 불필요한 필드 업데이트를 막아 성능에 이점을 줄 수 있습니다.
+
+### User 엔티티 설계 예제 (주석 포함)
+
+```
+@Entity // 이 클래스는 JPA가 관리하는 엔티티입니다.
+@Getter // Lombok: Getter 메서드를 자동 생성합니다.
+@DynamicInsert // 값이 null이 아닌 필드만으로 INSERT 쿼리를 생성합니다.
+@DynamicUpdate // 변경된 필드만으로 UPDATE 쿼리를 생성합니다.
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA는 기본 생성자를 필요로 합니다.
+@Table(name = "user") // 'user'라는 이름의 테이블과 매핑됩니다.
+public class User {
+
+  @Id // 이 필드가 테이블의 Primary Key(기본 키)입니다.
+  @GeneratedValue(strategy = GenerationType.IDENTITY) // PK 생성을 DB의 AUTO_INCREMENT에 위임합니다.
+  private Long id;
+
+  @Column(name = "username", nullable = false, length = 50) // 'username' 컬럼, NOT NULL, 길이 50
+  private String username;
+
+  @Column(nullable = false, unique = true) // 'email' 컬럼, NOT NULL, UNIQUE
+  private String email;
+
+  @Column(name = "password_hash", nullable = false)
+  private String passwordHash;
+
+  @CreationTimestamp // 엔티티가 생성될 때의 시간이 자동으로 기록됩니다.
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  @UpdateTimestamp // 엔티티가 수정될 때의 시간이 자동으로 기록됩니다.
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
+
+  @Builder // 빌더 패턴으로 객체를 생성할 수 있게 합니다.
+  public User(
+			String username, 
+		  String email,
+		  String passwordHash
+		) {
+    this.username = username;
+    this.email = email;
+    this.passwordHash = passwordHash;
+  }
+}
+```
+
+## 5. Spring Data JPA Repository 작성법 🛠️
+
+엔티티(Entity)를 통해 실제 데이터베이스 작업을 수행할 **리포지토리(Repository)** 인터페이스를 작성합니다. 리포지토리는 데이터 접근 계층(DAO)을 더 쉽고 세련되게 다룰 수 있도록 해주는 핵심적인 추상화 계층입니다.
+
+### 기본 개념 및 CRUD: `JpaRepository` 인터페이스
+
+Spring Data JPA의 마법은 `JpaRepository` 인터페이스를 상속받는 것에서 시작됩니다. 개발자가 이 인터페이스를 상속받은 자신만의 인터페이스를 정의하면, Spring이 실행 시점에 동적으로 구현체를 생성해줍니다.
+
+```
+// JpaRepository<T, ID>
+// T: 리포지토리에서 다룰 엔티티 클래스 (예: User)
+// ID: 해당 엔티티의 Primary Key 필드 타입 (예: Long)
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
+    // 이 안에 코드가 없어도 아래의 주요 메서드들을 바로 주입받아 사용할 수 있습니다.
+}
+```
+
+- **주요 기본 제공 메서드**
+    - `save(S entity)`: 새로운 엔티티는 저장(**INSERT**)하고, 이미 존재하는 엔티티는 병합(**UPDATE**)합니다.
+    - `findById(ID id)`: PK를 기준으로 엔티티 하나를 조회합니다. 결과는 `Optional<T>`로 반환되어 Null-safe한 처리를 돕습니다.
+    - `findAll()`: 모든 엔티티를 조회합니다. (`List<T>`)
+    - `count()`: 엔티티의 총 개수를 반환합니다. (`long`)
+    - `delete(T entity)`: 특정 엔티티를 삭제합니다.
+    - `deleteById(ID id)`: PK를 기준으로 엔티티를 삭제합니다.
+
+### 메서드 이름 기반 쿼리 (Query from Method Names)
+
+가장 직관적이고 생산성이 높은 기능입니다. 정해진 규칙에 따라 메서드 이름을 지으면, Spring Data JPA가 메서드 이름을 분석하여 자동으로 JPQL 쿼리를 생성하고 실행합니다.
+
+- **쿼리 생성 규칙**: `(find/read/query/count/delete)By...[And/Or]...[OrderBy]`
+    - **기본 조회**: `findByUsername(String username)`
+        - `SELECT u FROM User u WHERE u.username = ?1`
+
+    - **조건 조합 (`And`, `Or`)**: `findByUsernameAndRole(String username, String role)`
+        - `SELECT u FROM User u WHERE u.username = ?1 AND u.role = ?2`
+
+    - **다양한 조건 키워드**:
+        - `Containing`: `LIKE '%...%'` 검색. `findByUsernameContaining("test")`
+        - `StartingWith`: `LIKE '...%'` 검색.
+        - `GreaterThan` / `LessThan`: 특정 값보다 크거나 작음. `findByAgeGreaterThan(20)`
+        - `After` / `Before`: 날짜 비교. `findByCreatedAtAfter(LocalDateTime.now().minusDays(1))`
+        - `OrderBy`: 정렬. `findAllByOrderByCreatedAtDesc()`
+
+```
+public interface UserRepository extends JpaRepository<User, Long> {
+    // 이메일로 유저 조회 (결과가 없을 수 있으므로 Optional 사용)
+    Optional<User> findByEmail(String email);
+
+    // 특정 날짜 이후에 가입한 유저들을 이름 순으로 정렬하여 조회
+    List<User> findByCreatedAtAfterOrderByUsernameAsc(LocalDateTime dateTime);
+
+    // 'role'이 'admin'인 유저의 수를 카운트
+    long countByRole(String role);
+}
+```
+
+
+- **장점**: 간단한 쿼리를 매우 빠르고 직관적으로 작성할 수 있으며, 컴파일 시점에 오타 등을 체크할 수 있습니다.
+- **단점**: 조건이 복잡해지면 메서드 이름이 지나치게 길어져 가독성이 떨어집니다.
+
+### `@Query`를 이용한 커스텀 쿼리
+
+메서드 이름만으로 표현하기 힘든 복잡한 쿼리(JOIN, 서브쿼리 등)나, DTO로 직접 결과를 매핑하고 싶을 때 사용합니다. **JPQL(Java Persistence Query Language)**을 사용하여 직접 쿼리를 작성합니다.
+
+- **JPQL (Java Persistence Query Language)**
+    - 데이터베이스 테이블이 아닌 **엔티티 객체**를 대상으로 하는 객체지향 쿼리 언어입니다. `FROM User u`처럼 테이블명이 아닌 엔티티 클래스명을 사용합니다.
+
+- **`@Query` 기본 사용법**
+    - **Named Parameters**:
+        - `:(파라미터명)`으로 쿼리에 변수를 바인딩합니다. 메서드 파라미터에 `@Param` 어노테이션을 사용하여 어떤 값이 어떤 이름의 파라미터에 매핑될지 명확히 지정할 수 있습니다. 가독성이 높아 권장되는 방식입니다.
+    - **예시: 이메일로 사용자 조회**
+```
+// 이메일 주소는 고유(unique)하므로, 조회 결과는 단일 객체입니다.
+// 결과가 없을 수도 있는 상황을 고려하여 Optional<User>로 반환하는 것이 안전합니다.
+@Query("SELECT u FROM User u WHERE u.email = :email")
+Optional<User> findUserByEmail(@Param("email") String email);
+```
+- **`@Query(...)`**: `FROM User u`는 `user` 테이블이 아닌 `User` 엔티티 객체를 의미합니다. JPQL은 이처럼 객체지향적으로 쿼리를 작성합니다.
+- **`:email`**: 쿼리 내에서 사용될 명명된 파라미터(Named Parameter)입니다.
+- **`@Param("email")`**: 메서드의 파라미터
+
+- **네이티브 쿼리 (Native Query)**
+    - JPQL로 해결할 수 없는 데이터베이스 고유의 함수나 문법을 사용해야 할 때, `nativeQuery = true` 속성을 사용해 순수 SQL을 직접 작성할 수 있습니다.
+```
+// 예시: MySQL의 특정 함수를 사용해야 할 경우
+@Query(value = "SELECT * FROM user WHERE username = ?1", nativeQuery = true)
+User findByUsernameNative(String username);
+```
+
+## 6. 실습: DB 테이블 설계부터 Repository 작성까지 🚀
+
+위에서 배운 모든 개념을 종합하여 실습을 진행합니다.
+
+1. **DB 테이블 설계 및 Flyway 마이그레이션**
+    - 회원(User) 등 필요한 테이블을 설계합니다.
+    - `V2__create_user_table.sql` 등 마이그레이션 파일을 작성합니다.
+    - 테이블 생성 후, 수정 사항이 발생하였을 경우를 가정하여 `status`컬럼을 추가합니다.
+2. **JPA Entity 작성**
+    - `User`엔티티를 자바 클래스로 작성합니다.
+3. **Repository 작성 및 테스트**
+    - `UserRepository`를 작성합니다.
+
+
+
+
+
 <br><br><br>
 출처: 팀스파르타 <br>
 Copyright ⓒ TeamSparta All rights reserved.
