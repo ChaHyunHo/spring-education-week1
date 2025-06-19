@@ -77,6 +77,25 @@
     - [7. 실습: 쇼핑몰 DB 설계 및 JPA 연관관계 매핑 🛒](#7-실습-쇼핑몰-DB-설계-및-jpa-연관관계-매핑-)
         - [DB 스키마 생성 (Flyway)](#db-스키마-생성-flyway)
         - [JPA 엔티티 및 연관관계 매핑](#jpa-엔티티-및-연관관계-매핑)
+- [5일차](#tag5)
+    - [1. 데이터 로딩 전략](#1-데이터-로딩-전략)
+        - [로딩 전략, 왜 필요할까? (객체와 데이터베이스의 동상이몽)](#로딩-전략-왜-필요할까-객체와-데이터베이스의-동상이몽)
+    - [2. JPA 로딩 전략: LAZY vs EAGER](#jpa-로딩-전략-lazy-vs-eager)
+        - [지연 로딩 (Lazy Loading) - "필요할 때만 부른다" 🥱](#지연-로딩-lazy-loading---필요할-때만-부른다-)
+        - [즉시 로딩 (Eager Loading) - "무조건 함께 부른다" 🚀](#즉시-로딩-eager-loading---무조건-함께-부른다-)
+        - [가장 중요한 문제: N+1 쿼리 ⚠️](#가장-중요한-문제-n1-쿼리-)
+    - [3. N+1 문제 이해 및 해결 전략 🔍](#3-n1-문제-이해-및-해결-전략-)
+        - [N+1 문제란 무엇인가?](#n1-문제란-무엇인가)
+        - [N+1 문제 해결 방법](#n1-문제-해결-방법)
+        - [Fetch Join vs. @BatchSize: 언제 무엇을 쓸까?](#fetch-join-vs-batchsize-언제-무엇을-쓸까)
+        - [최종 결론 및 실무 전략 ✅](#최종-결론-및-실무-전략-)
+    - [4. Entity, DTO : 역할과 책임의 분리 🏛️](#4-entity-dto--역할과-책임의-분리-)
+        - [왜 이 객체들을 분리해야 할까?](#왜-이-객체들을-분리해야-할까)
+        - [각 객체의 명확한 역할과 책임](#각-객체의-명확한-역할과-책임)
+        - [데이터 흐름으로 보는 역할 비교](#데이터-흐름으로-보는-역할-비교)
+    - [5. 실습: JPA 로딩 전략 최적화하기 ⚡](#5-실습-jpa-로딩-전략-최적화하기-)
+        - [달성 목표](#달성-목표)
+        - [스스로 점검해볼 질문](#스스로-점검해볼-질문)
 
 ---
 
@@ -985,7 +1004,7 @@ Java 5부터는 이 과정이 자동으로 일어나는데, 이를 **오토박�
 
 </aside>
 
-```java
+```
 List<Integer> numbers = new ArrayList<>();
 
 // 오토박싱: 기본 타입 int(10)가 자동으로 Integer 객체로 변환되어 리스트에 추가됨
@@ -1264,7 +1283,7 @@ Java 8에서 도입된 혁신적인 기능으로, 함수형 프로그래밍 스�
 - **이름이 없는 함수(Anonymous Function)**를 만드는 간결한 방법입니다. 메소드를 마치 값(value)처럼 다룰 수 있게 해줍니다. 주로 **함수형 인터페이스(
   Functional Interface: 단 하나의 추상 메소드만 가진 인터페이스)**를 구현할 때, 불필요한 코드 없이 핵심 로직만 깔끔하게 작성할 수 있습니다.
 
-```java
+```
 // 목표: 새로운 스레드를 생성하여 코드를 실행한다.
 
 // [Before] Java 7까지의 익명 클래스 방식
@@ -1273,19 +1292,11 @@ new Thread(new Runnable() {
   public void run () {
     System.out.println("스레드 실행 (기존 방식)");
   }
-}).
-
-start();
+}).start();
 
 // [After] Java 8 람다 표현식
 // () -> { ... } 부분이 run() 메소드의 구현체를 대체합니다.
-new
-
-Thread(() ->System.out.
-
-println("스레드 실행 (람다 방식)")).
-
-start();
+new Thread(() -> System.out.println("스레드 실행 (람다 방식)")).start();
 ```
 
 ### **스트림 API (Stream API)**
@@ -1452,22 +1463,13 @@ public class JavaProgramming {
     - 배열이나 리스트를 **역순으로 순회**해야 할 때.
     - 특정 조건에 따라 반복 횟수를 건너뛰거나 조절해야 할 때.
 
-```java
+```
 List<String> names = Arrays.asList("Alice", "Bob", "Charlie");
 
 // i라는 인덱스를 직접 사용
-for(
-int i = 0; i <names.
-
-size();
-
-i++){
-    System.out.
-
-println((i +1) +"번째 이름: "+names.
-
-get(i));
-    }
+for( int i = 0; i < names.size(); i++){
+    System.out.println((i +1) +"번째 이름: "+names.get(i));
+}
 ```
 
 ### **향상된 `for` 루프 (`for-each`)**
@@ -1653,26 +1655,18 @@ Hibernate는 JPA의 구현체로, 자바 객체와 데이터베이스 간의 매
 - **과거의 개발 방식 (JDBC)**Java
     - 개발자는 자바 코드 내에 SQL 쿼리를 직접 작성하고, `ResultSet`의 결과를 다시 자바 객체로 한 줄 한 줄 변환하는 반복적인 작업을 수행해야 했습니다.
 
-```java
+```
 // 옛날 방식 (JDBC)
 String sql = "SELECT * FROM users WHERE id = ?";
 PreparedStatement pstmt = connection.prepareStatement(sql);
-pstmt.
-
-setLong(1,1L);
+pstmt.setLong(1,1L);
 
 ResultSet rs = pstmt.executeQuery();
 User user = new User();
-if(rs.
-
-next()){
-    user.
-
-setId(rs.getLong("id"));
-    user.
-
-setUsername(rs.getString("username"));
-    }
+if(rs.next()){
+    user.setId(rs.getLong("id"));
+    user.setUsername(rs.getString("username"));
+}
 ```
 
 - **객체-관계 불일치 (Object-Relational Impedance Mismatch)**
@@ -2478,7 +2472,7 @@ CREATE TABLE purchase_item
 
 ### 전체 구조 및 관계 요약
 
-```sql
+```tex
 [ user ]--<1:N>--[ purchase ]--<1:N>--[ purchase_item ]--<N:1>--[ product ]
                                                                    |
                                                                    |
@@ -2936,6 +2930,411 @@ Flyway를 사용하여 `user`, `category`, `product`, `purchase`, `purchase_item
 - `Product` → `Category` : **N:1 단방향 관계**
 - `Category` ↔ `Category` : **자기 참조 양방향 관계**
 - `Purchase` ↔ `Product` : **N:N 관계** (`PurchaseItem` 연결 엔티티로 해결)
+
+#### tag5
+
+- [목차](#tag0)
+
+### **이번에 배울 것**
+
+<aside>
+❗ 이번 학습에서는 JPA 성능 최적화의 핵심인 **데이터 로딩 전략**을 깊이 있게 학습합니다. 
+먼저 **지연 로딩(LAZY)과 즉시 로딩(EAGER)**의 차이를 이해하고, 이로 인해 발생하는 고질적인 **N+1 문제의 원인을 분석**합니다. 
+
+이어서 **Fetch Join과 @BatchSize**를 활용하여 이 문제를 해결하는 실용적인 방법을 익히고, 더 나아가 안정적인 애플리케이션 설계를 위해 **Entity와
+DTO의 역할을 명확히 분리**하는 이유와 방법을 학습하며, 최종적으로 배운 모든 내용을 **실습을 통해 직접 최적화**해보는 시간을 갖습니다.
+
+</aside>
+
+## **1. 데이터 로딩 전략**
+
+### 로딩 전략, 왜 필요할까? (객체와 데이터베이스의 동상이몽)
+
+JPA 로딩 전략이 왜 필요한지 이해하려면, **객체지향 프로그래밍(OOP)과 관계형 데이터베이스(RDB)가 데이터를 바라보는 방식이 근본적으로 다르다**는 점을 알아야 합니다.
+
+**1. 개발자의 세상: 자유롭게 연결된 객체 그래프**
+
+개발자는 객체지향 세상에서 코드를 작성합니다. 우리는 `User` 객체가 있다면, 그 객체를 통해 연관된 `Purchase` 객체 목록에 `user.getPurchases()`처럼
+점(.) 하나로 자유롭게 접근하기를 기대합니다. 객체들은 메모리 위에서 서로를 직접 참조하며 거미줄처럼 엮여있는 **객체 그래프(Object Graph)** 형태를 띱니다.
+
+`[User 객체] <----참조----> [Purchase 객체 목록]`
+
+**2. 데이터베이스의 세상: 분리된 테이블**
+
+하지만 데이터베이스는 데이터를 객체 그래프가 아닌, 각각의 **테이블(Table)**에 저장합니다. `user` 테이블과 `purchase` 테이블은 물리적으로 분리되어 있으며,
+오직 `purchase` 테이블의 `user_id` 외래 키(FK)를 통해서만 논리적인 관계를 맺고 있습니다. 한 테이블에서 다른 테이블의 데이터로 넘어가려면 `JOIN` 같은
+별도의 SQL 연산이 반드시 필요합니다.
+
+`[user 테이블]` `[purchase 테이블]`  (서로 분리됨, JOIN으로 연결)
+
+**3. 딜레마와 해답: JPA의 로딩 전략**
+
+JPA는 이 두 세상 사이에서 다리 역할을 합니다. 여기서 JPA는 중요한 딜레마에 빠집니다.
+
+> 개발자가 userRepository.findById(1L)로 User 객체 하나를 요청했을 때,
+"User와 연관된 Purchase 데이터도 지금 당장 함께 가져와야 할까, 아니면 나중에 진짜 필요하다고 할 때 가져올까?"
+>
+
+이 딜레마에 대한 해답이 바로 **로딩 전략(Loading Strategy)**입니다.
+
+- **즉시 로딩(Eager Loading)**: "혹시 모르니 무조건 함께 가져오자!" 라는 전략입니다. `JOIN`을 사용해 한 번에 모든 데이터를 가져옵니다.
+- **지연 로딩(Lazy Loading)**: "일단 급한 것만 주고, 필요하다고 하면 그때 가서 가져다주자!" 라는 전략입니다. `User`만 먼저 가져오고,
+  `Purchase`는 나중에 별도 쿼리로 가져옵니다.
+
+결론적으로 로딩 전략은, 객체 그래프 탐색의 '편의성'과 데이터베이스 조회의 '성능(효율성)' 사이에서 **언제, 어떻게 데이터를 가져올지 JPA에게 알려주는 매우 중요한 지침**
+입니다. 이 선택에 따라 애플리케이션의 성능이 크게 좌우됩니다.
+
+---
+
+## JPA 로딩 전략: LAZY vs EAGER
+
+JPA에서 연관관계에 있는 엔티티를 언제 데이터베이스에서 조회해올지 결정하는 방법을 **로딩 전략**이라고 합니다. 이 전략은 애플리케이션의 성능에 직접적인 영향을 미치는 매우
+중요한 개념입니다.
+
+### 지연 로딩 (Lazy Loading) - "필요할 때만 부른다" 😴
+
+**지연 로딩**은 연관된 엔티티 데이터를 실제로 사용하는 시점까지 조회를 미루는 방식입니다.
+
+- 엔티티를 조회할 때 연관된 엔티티는 가져오지 않고, 프록시(Proxy)라는 가짜 객체를 대신 넣어둡니다. 이후 해당 프록시 객체의 필드를 실제로 호출할 때 DB에 조회 쿼리가
+  실행됩니다.
+
+```
+// --- Entity 코드 ---
+@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+private List<Purchase> purchases;
+
+
+// --- 실행 코드 ---
+// 1. User 조회 시점: user 테이블만 조회한다.
+User user = userRepository.findById(1L).get();
+
+// 2. user.getPurchases()는 아직 비어있는 '가짜' 리스트(프록시)다.
+System.out.println("사용자 이름: " + user.getUsername());
+
+// 3. purchases 리스트를 실제로 사용하는 시점에 purchase를 조회하는 쿼리가 실행된다.
+    System.out.println("주문 개수: " + user.getPurchases().size());
+
+```
+
+```sql
+#- 3번 라인 실행 시 나가는 쿼리
+select p1_0.user_id, p1_0.id ... from purchase p1_0
+where p1_0.user_id=?
+```
+
+- **장점**: 초기 로딩 속도가 빠르고, 당장 필요 없는 데이터까지 조회하는 낭비를 막을 수 있습니다.
+- **단점**: 데이터를 사용할 때마다 추가 쿼리가 발생할 수 있습니다. (이 단점이 N+1 문제로 이어집니다.)
+
+### 즉시 로딩 (Eager Loading) - "무조건 함께 부른다" 🚀
+
+**즉시 로딩**은 엔티티를 조회할 때 연관된 엔티티 데이터까지 **항상** 함께 조회하는 방식입니다.
+
+- **정의**: JPA가 엔티티를 조회할 때, 연관된 엔티티를 함께 가져오기 위해 `JOIN` 쿼리를 사용합니다.
+- **동작 방식 예제**:
+
+    ```java
+    // --- Entity 코드 ---
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private List<Purchase> purchases;
+    
+    // --- 실행 코드 ---
+    // User 조회 시점에 user와 purchase 테이블을 JOIN하여 모든 데이터를 한 번에 가져온다.
+    User user = userRepository.findById(1L).get();
+    ```
+
+    ```
+    - user 조회 시 바로 나가는 쿼리
+    select u1_0.id, ..., p1_0.user_id, p1_0.id, ...
+    from user u1_0
+    left join purchase p1_0 on u1_0.id=p1_0.user_id
+    where u1_0.id=?
+    ```
+
+### 가장 중요한 문제: N+1 쿼리 ⚠️
+
+즉시 로딩의 가장 위험한 단점은 **N+1 문제**를 일으킨다는 것입니다.
+
+- **상황**: `List<User> users = userRepository.findAll();` 코드를 실행했다고 가정해봅시다. (`User`의 `purchases`는
+  `EAGER` 로딩 상태)
+- **동작**:
+    1. **첫 번째 쿼리 (1)**: 모든 `User`를 조회합니다. (`SELECT * FROM user;`)
+    2. **이후의 쿼리 (N)**: 조회된 `User`가 N명이라면, 각 `User`의 `purchases`를 가져오기 위해 **N번의 추가 쿼리**가 실행됩니다. (
+       `SELECT * FROM purchase WHERE user_id = ?;` ... N번 반복)
+- **결과**: 단 한 줄의 코드로 인해, 총 **1 + N개의 쿼리**가 데이터베이스로 전송되어 애플리케이션 전체를 마비시킬 수 있습니다. 이는 지연 로딩에서도 연관 데이터를
+  루프 안에서 조회할 때 동일하게 발생할 수 있습니다.
+
+- **장점**: 연관된 데이터를 바로 사용할 때 추가 쿼리 없이 즉시 접근할 수 있습니다.
+- **단점**: **사용하지도 않을 데이터를 미리 조회**하여 초기 로딩이 느려지고, 메모리 낭비가 발생할 수 있습니다. **특히 심각한 성능 문제를 유발합니다.**
+
+---
+
+## 3. N+1 문제 이해 및 해결 전략 🔍
+
+JPA를 사용하면서 애플리케이션의 성능을 저하시키는 가장 대표적인 원인인 **N+1 문제**에 대해 알아보고, 이를 해결하는 효과적인 방법들을 학습합니다.
+
+### N+1 문제란 무엇인가?
+
+- 연관관계가 설정된 엔티티를 조회할 때, 첫 쿼리(1)의 결과로 N개의 데이터가 조회된 후, 이 N개의 데이터 각각에 대해 연관된 데이터를 얻기 위해 N번의 추가 쿼리가 발생하는
+  현상을 말합니다.
+
+- **N+1 문제 발생 시나리오**
+    1. **지연 로딩(LAZY)과 반복문**
+
+       가장 직관적으로 N+1 문제가 발생하는 상황입니다. LAZY 로딩 상태에서 모든 사용자를 조회한 후, 반복문 안에서 각 사용자의 주문 목록에 접근할 때 발생합니다.
+
+        ```java
+        List<User> users = userRepository.findAll(); // 쿼리 1번 발생
+        
+        for (User user : users) {
+          // user.getOrders()를 호출하는 순간, 각 User마다 쿼리 N번 발생
+          System.out.println("주문 개수: " + user.getOrders().size());
+        }
+        ```
+
+    2. **즉시 로딩(EAGER)의 함정**
+
+       EAGER 로딩은 연관된 데이터를 항상 함께 조회하지만, 이는 조회하는 엔티티가 단 건일 때만 유효합니다. 목록을 조회할 때는 JOIN으로 인한 문제를 피하기 위해
+       JPA가 다른 방식으로 동작하여 결국 N+1 문제를 유발합니다.
+
+- **`findById(1L)`처럼 단 건을 조회할 경우**
+    - 조회의 시작점이 1개로 명확하므로, 예상대로 `LEFT JOIN`을 사용하여 **단 1개의 쿼리**로 모든 데이터를 가져옵니다. **이때는 N+1 문제가 발생하지
+      않습니다.**
+
+    ```sql
+    - findById(1L) 실행 시
+    SELECT ... FROM user u LEFT JOIN purchase p ON u.id = p.user_id WHERE u.id = 1;
+    ```
+
+- **`findAll()`처럼 여러 건(컬렉션)을 조회할 경우**
+    - **`JOIN` 포기 이유**: 여러 `User`와 각자의 `Purchase` 목록을 `JOIN`하면, 한 `User`가 5개의 주문을 가졌을 경우 `User` 정보가
+      5번 중복된 데이터가 생성됩니다. 이는 **데이터 부정확성 및 페이징 처리 불가 문제**를 일으킵니다.
+    - **JPA의 해결책 (N+1 발생 원인)**: 이 문제를 피하기 위해 JPA는 다음과 같이 동작을 변경합니다.
+        1. 먼저 루트 엔티티(`User`)를 모두 조회합니다. (**쿼리 1번**)
+
+            ```sql
+            SELECT * FROM user;
+            ```
+
+        2. 이후, 조회된 각 `User`에 대해 연관된 컬렉션(`Purchase`)을 개별적으로 조회합니다.
+           (**쿼리 N번**)
+
+            ```sql
+            SELECT * FROM purchase WHERE user_id = 1;
+            SELECT * FROM purchase WHERE user_id = 2;
+            ...
+            ```
+
+    - **결과**: `findAll()` 단 한 줄의 코드가, 총 **1 + N개의 쿼리 폭탄**이 되어 DB에 전달됩니다.
+
+### N+1 문제 해결 방법
+
+N+1 문제를 해결하는 대표적인 두 가지 방법은 **Fetch Join**과 **@BatchSize**입니다.
+
+**해결책 1: Fetch Join - "처음부터 다 가져오기"**
+
+- JPQL의 `JOIN FETCH` 문법을 사용하여, 조회 시점부터 연관된 엔티티 데이터를 함께 가져오는 방식입니다. SQL의 `JOIN`과 동일하게 동작하여, 쿼리 한 번으로
+  모든 데이터를 가져옵니다.
+- **적용 예제**
+
+    ```java
+    // UserRepository.java (purchases는 User 엔티티의 필드명)
+    @Query("SELECT u FROM User u JOIN FETCH u.purchases") 
+    List<User> findAllWithPurchases();
+    ```
+
+    ```sql
+    -- 위 JPQL 실행 시 실제 나가는 쿼리 (단 1개)
+    select u1_0.id, p1_0.id, ... 
+    from user u1_0 
+    join purchase p1_0 on u1_0.id=p1_0.user_id
+    ```
+
+- **장점**: N+1 문제를 가장 확실하고 간단하게 해결할 수 있습니다.
+- **주의사항**: 2개 이상의 컬렉션을 Fetch Join 하거나, 페이징 쿼리와 함께 사용할 때 제약이 있으므로 주의해야 합니다.
+
+**해결책 2: `@BatchSize` - "똑똑하게 묶어서 가져오기"**
+
+- `LAZY` 로딩을 유지하면서, 연관된 데이터 조회가 필요할 때 지정된 `size` 만큼의 ID를 모아 `IN` 절 쿼리로 한 번에 조회하는 방식입니다.
+
+    ```java
+    // User.java의 컬렉션 필드에 어노테이션 추가
+    @BatchSize(size = 100) // 100개씩 묶어서 조회
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Purchase> purchases = new ArrayList<>();
+    ```
+
+    ```sql
+    -- user.getOrders().size() 호출 시 나가는 쿼리
+    
+    -- 1. User 전체 조회
+    select u1_0.id, ... from user u1_0
+    
+    -- 2. user_id를 100개씩 묶어 IN 절로 조회
+    select p1_0.user_id, p1_0.id, ... 
+    from purchase p1_0 
+    where p1_0.user_id in (?, ?, ..., ?) -- ID 100개
+    ```
+
+- **장점**: `LAZY` 로딩의 장점을 살리면서 쿼리 수를 1 + (N / batch_size)로 크게 줄여줍니다. 글로벌 설정으로 프로젝트 전체에 적용하기도 편합니다.
+- **주의사항**: `IN` 절에 들어갈 파라미터 개수가 너무 많아지면 DB에 따라 성능 저하가 발생할 수 있습니다.
+
+### Fetch Join vs. @BatchSize: 언제 무엇을 쓸까?
+
+| **항목**    | **Fetch Join**                          | **@BatchSize**                        |
+|-----------|-----------------------------------------|---------------------------------------|
+| **적용 방법** | JPQL에서 명시적으로 작성                         | 어노테이션으로 간단히 설정                        |
+| **쿼리 수**  | 단 1개                                    | 1 + (N / batch_size) 개                |
+| **장점**    | N+1을 원천 차단, 직관적                         | LAZY 로딩 유지, 설정 간편                     |
+| **단점**    | 페이징 처리 불가, 2개 이상 컬렉션 JOIN 불가            | 쿼리가 여러 번 나감                           |
+| **사용 시점** | **조회된 데이터와 연관 데이터를 항상 함께 사용**할 것이 확실할 때 | **상황에 따라 연관 데이터가 필요할 수도, 아닐 수도 있을 때** |
+
+### 최종 결론 및 실무 전략 ✅
+
+1. **모든 연관관계는 무조건 지연 로딩(`LAZY`)으로 설정하라.**
+    - `@ManyToOne`, `@OneToOne` 관계는 기본값이 `EAGER`이므로, **반드시 `fetch = FetchType.LAZY`를 명시적으로 추가**해야
+      합니다. `@OneToMany`는 기본값이 `LAZY`입니다. 이것이 실무에서의 제1원칙입니다.
+2. **필요한 데이터는 Fetch Join으로 한 번에 가져와라.**
+    - `LAZY`로 설정한 후, 특정 기능에서 연관 데이터가 꼭 필요하다면 **`Fetch Join`을 사용하여 N+1 문제를 해결**하는 것이 가장 권장되는 방법입니다.
+      `@BatchSize`는 차선책 또는 글로벌 최적화 전략으로 고려할 수 있습니다.
+
+        ```java
+        @Query("SELECT u FROM User u JOIN FETCH u.purchases WHERE u.id = :id")
+        Optional<User> findUserWithPurchases(@Param("id") Long id);`
+        ```
+
+---
+
+## 4. Entity, DTO : 역할과 책임의 분리 🏛️
+
+Spring 애플리케이션에서는 데이터를 담는 객체를 역할에 따라 **Entity, DTO** 등으로 나누어 사용합니다. 이들을 명확히 분리하는 것은 시스템의 안정성과 유지보수성을
+높이는 핵심적인 설계 원칙입니다.
+
+### 왜 이 객체들을 분리해야 할까?
+
+만약 데이터베이스와 직접 연결되는 **`Entity`** 객체를 API의 요청(Request)과 응답(Response)에 그대로 사용하면 다음과 같은 심각한 문제들이 발생할 수
+있습니다.
+
+1. **데이터베이스 스키마 직접 노출**: `Entity`의 모든 필드가 외부에 공개됩니다. `password_hash` 같은 민감한 정보나, API와 무관한 내부 관리용 필드가
+   실수로 노출될 수 있어 **보안에 취약**합니다.
+2. **불필요한 데이터 전송**: API는 사용자의 이름과 이메일만 필요한데, `Entity`의 모든 필드(주소, 역할, 생성일 등)가 함께 조회되고 전송되어 **성능 저하**를
+   유발합니다.
+3. **책임의 불일치**: `Entity`는 데이터베이스의 구조를, `Request` 객체는 유효성 검증(`@NotNull`)을, `Response` 객체는 화면 표현을 책임져야
+   합니다. 이 모든 것을 하나의 클래스에 담으면 코드가 복잡해지고, **하나의 변경이 모든 계층에 영향을 미치는 불안정한 구조**가 됩니다.
+
+이러한 문제를 해결하기 위해, 각 객체에 명확한 **역할과 책임**을 부여하여 계층 간에 분리합니다.
+
+### 각 객체의 명확한 역할과 책임
+
+**`Entity`: 데이터베이스와의 1:1 대화**
+
+- **역할**: 데이터베이스 테이블과 직접적으로 1:1 매핑되는 객체입니다. 데이터베이스에 데이터를 저장하고 조회하는 **영속성(Persistence) 계층의 핵심**입니다.
+- **특징**: JPA가 관리하며, 생명주기(Lifecycle)를 가집니다. 다른 로직은 최소화하고 오직 **테이블의 구조와 관계를 표현하는 데 집중**합니다.
+- **⚠️ 원칙**: **절대 외부에 노출하지 않는다.** `Entity`는 서비스 계층 안에서만 사용되어야 하며, Controller로 전달하거나 API 응답으로 반환해서는 안
+  됩니다.
+
+**`DTO` (Data Transfer Object): 계층 간 데이터 운반꾼**
+
+- **역할**: 서비스, 컨트롤러 등 **계층 간에 데이터를 전달(Transfer)하는 용도**로 사용되는 순수한 데이터 운반용 객체입니다.
+- **특징**: 필요한 데이터만 선택적으로 담을 수 있으며, 로직을 가지지 않는 간단한 형태(POJO)입니다. `Entity`를 특정 기능에 맞게 가공하여 전달할 때
+  유용합니다. (예: `UserSimpleDto`, `UserDetailDto`)
+
+```java
+
+@Getter
+@Builder
+@NoArgsConstructor
+public class UserDto {
+
+  private String username;
+
+  @Setter // DTO는 계층 간 전달되므로 Setter가 필요한 경우가 많음
+  private String email;
+  // ... 서비스 로직에 필요한 다른 필드 ...
+
+}
+```
+
+```java
+
+//Request / Response: 클라이언트와의 소통 창구
+//역할: API의 명세(Spec) 그 자체입니다. 클라이언트(웹, 앱)와의 데이터 요청(Request)과 응답(Response)을 위해 특별히 설계된 객체입니다.
+//Request 객체의 특징:
+//클라이언트의 요청 데이터를 담습니다.
+//@NotNull, @Size, @Email 등 데이터 유효성 검증(Validation) 로직을 포함합니다.
+//Response 객체의 특징:
+//클라이언트에게 반환할 데이터를 담습니다.
+//Entity의 민감한 정보는 숨기고, 화면에 필요한 데이터만 가공하여 구성합니다.
+// UserCreateRequest.java - 사용자 생성 요청
+@Getter
+@NoArgsConstructor
+public class UserCreateRequest {
+
+  @NotBlank(message = "사용자 이름은 필수입니다.")
+  @Size(min = 2, max = 50)
+  private String username;
+
+  @NotBlank(message = "이메일은 필수입니다.")
+  @Email(message = "유효한 이메일 형식이 아닙니다.")
+  private String email;
+
+  @NotBlank(message = "비밀번호는 필수입니다.")
+  private String password;
+
+}
+
+// UserResponse.java - 사용자 정보 응답
+@Getter
+@Builder
+public class UserResponse {
+
+  private final Long id;
+  private final String username;
+  private final String email;
+}
+```
+
+### 데이터 흐름으로 보는 역할 비교
+
+"사용자 생성" API를 예로 들면 데이터는 다음과 같이 각 객체로 변환되며 흐릅니다.
+
+1. **Client → Controller**
+    - 클라이언트가 보낸 JSON 요청을 `UserCreateRequest` 객체로 받아 유효성을 검증합니다.
+2. **Controller → Service**
+    - `UserCreateRequest`를 `UserService`가 사용하기 편한 `UserCreateDto`로 변환하여 전달합니다.
+3. **Service → Repository**
+    - `UserService`는 `UserCreateDto`를 기반으로 `User` **Entity**를 생성합니다.
+4. **Repository → DB**
+    - `UserRepository`가 `User` **Entity**를 데이터베이스에 저장합니다.
+5. **Service → Controller**
+    - 저장된 `User` **Entity**를 응답에 필요한 데이터만 담은 `UserResponse` 객체로 변환하여 반환합니다.
+6. **Controller → Client**
+    - `UserResponse` 객체가 JSON으로 변환되어 클라이언트에게 최종 응답됩니다.
+
+이처럼 **각 객체를 역할에 맞게 분리하여 사용하면, 시스템이 더 유연하고, 안전하며, 유지보수하기 쉬워집니다.**
+
+---
+
+## **5.** 실습: JPA 로딩 전략 최적화하기 ⚡️
+
+`User`, `Purchase`, `Product` 등 여러 엔티티가 1:N, N:N 관계로 복잡하게 얽혀있는 쇼핑몰 도메인이 있습니다. 이 상황에서 단순히 전체 사용자 목록을
+조회한 후, 각 사용자의 주문 내역을 확인하는 간단한 로직만으로도 수십, 수백 개의 불필요한 쿼리가 발생하는 **성능 병목 현상(N+1 문제)**을 마주하게 됩니다.
+
+이 실습의 핵심은 이 '**숨어있는 쿼리 폭탄**'의 원인을 직접 분석하고, JPA가 제공하는 데이터 조회 전략을 활용하여 애플리케이션의 성능을 극적으로 개선하는 것입니다.
+
+### 달성 목표
+
+1. JPA의 **지연 로딩(Lazy Loading)** 환경에서 **N+1 문제**가 왜, 그리고 어떻게 발생하는지 SQL 로그를 통해 **직접 확인하고 분석하는 능력**을
+   기릅니다.
+2. **Fetch Join**이라는 명시적 데이터 조회 기법을 사용하여, N+1 문제를 **단 한 번의 쿼리로 해결**하고 성능을 최적화하는 실질적인 문제 해결 능력을
+   체득합니다.
+3. 무분별한 즉시 로딩(Eager Loading)의 위험성을 이해하고, '**기본은 지연 로딩, 필요할 때만 Fetch Join**'이라는 현대적인 JPA 데이터 조회 전략을
+   설계하고 적용하는 습관을 들입니다.
+
+### 스스로 점검해볼 질문
+
+- Fetch Join을 사용했을 때와 사용하지 않았을 때, 실행되는 SQL 쿼리의 개수와 형태는 어떻게 다른가요?
+- 모든 연관관계를 `EAGER`(즉시 로딩)으로 바꾸면 이 문제가 해결될까요? 그렇지 않다면 어떤 새로운 문제가 발생할까요?
+- Fetch Join 외에 N+1 문제를 완화할 수 있는 또 다른 방법(`@BatchSize`)은 어떤 상황에서 더 유용할까요?
 
 <br><br><br>
 출처: 팀스파르타 <br>
