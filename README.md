@@ -2793,11 +2793,14 @@ public class Product {
     this.updatedAt = LocalDateTime.now();
   }
 }
+```
 
+```java
 // Category.java
-import lombok .*;
-    import jakarta.persistence .*;
-    import java.time.LocalDateTime;
+
+import lombok.*;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -3121,7 +3124,7 @@ JPA를 사용하면서 애플리케이션의 성능을 저하시키는 가장 �
             ```sql
             SELECT * FROM purchase WHERE user_id = 1;
             SELECT * FROM purchase WHERE user_id = 2;
-            ...
+            
             ```
 
     - **결과**: `findAll()` 단 한 줄의 코드가, 총 **1 + N개의 쿼리 폭탄**이 되어 DB에 전달됩니다.
