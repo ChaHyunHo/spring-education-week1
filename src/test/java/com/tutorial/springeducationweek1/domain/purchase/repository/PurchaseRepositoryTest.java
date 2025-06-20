@@ -9,9 +9,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 
-// @Transactional // 실제 DB에 값을 쌓지 않기위해 선언함.
+@Transactional // 실제 DB에 값을 쌓지 않기위해 선언함.
 @SpringBootTest
 class PurchaseRepositoryTest {
 
@@ -90,13 +91,32 @@ class PurchaseRepositoryTest {
 
   @Test
   void 조회() {
-    List<Purchase> purchases = purchaseRepository.findAll();
+    List<Purchase> purchases = purchaseRepository.findAllWithUsers();
 
     System.out.println("purchases length:" + purchases.size());
 
-    Purchase purchase = purchaseRepository.findById(1L)
-        .orElseThrow(() -> new RuntimeException("주문내역이 없습니다."));
+//    Purchase purchase = purchaseRepository.findById(1L)
+//        .orElseThrow(() -> new RuntimeException("주문내역이 없습니다."));
+//
+//    System.out.println("purchase id:" + purchase.getTotalPrice());
 
-    System.out.println("purchase id:" + purchase.getTotalPrice());
+//    System.out.println("=============================================");
+//    System.out.println("=============================================");
+//    System.out.println("=============================================");
+
+//    List<User> user = userRepository.findAll();
+    //.orElseThrow(() -> new RuntimeException("사용자가 없습니다."));
+
+//    System.out.println("=============================================");
+//    System.out.println("=============================================");
+//    System.out.println("n + 1 문제 해결을 위한 방법 [JPQL에서 join fetch 사용\n]");
+
+//    List<User> user2 = userRepository.findAllWithPurchases();
+//
+//    System.out.println("=============================================");
+//    System.out.println("=============================================");
+//    System.out.println("=============================================");
+//
+//    purchaseRepository.findAll();
   }
 }

@@ -39,7 +39,7 @@ public class Purchase { // 주문
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   //@ManyToOne(fetch = FetchType.EAGER) // lazy loading을 쓰지않는경우 명시적으로 적어주는걸 권장한다.
   @JoinColumn(name = "user_id", nullable = false)
   User user;
