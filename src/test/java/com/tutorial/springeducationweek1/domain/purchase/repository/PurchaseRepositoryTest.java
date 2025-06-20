@@ -118,7 +118,7 @@ class PurchaseRepositoryTest {
 
     for (User user : user2) {
       // user.getOrders()를 호출하는 순간, 각 User마다 쿼리 N번 발생
-      System.out.println("주문 개수: " + user.getEmail());
+      System.out.println("주문 이메일: " + user.getEmail());
     }
 //
 //    System.out.println("=============================================");

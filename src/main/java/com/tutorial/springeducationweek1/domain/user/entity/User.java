@@ -3,7 +3,6 @@ package com.tutorial.springeducationweek1.domain.user.entity;
 import com.tutorial.springeducationweek1.domain.purchase.entity.Purchase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -54,7 +53,7 @@ public class User {
   @Column
   LocalDateTime updatedAt;
 
-  @OneToMany(mappedBy = "user", fetch = FetchType.LAZY) // n + 1 문제가 생긴다. OneToMany
+  @OneToMany(mappedBy = "user")
   List<Purchase> purchases = new ArrayList<>();
 
   @Builder // 빌더 패턴으로 객체를 생성할 수 있게 합니다.

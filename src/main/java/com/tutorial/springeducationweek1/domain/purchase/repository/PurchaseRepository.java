@@ -12,6 +12,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
   //@Query("SELECT DISTINCT p FROM Purchase p JOIN FETCH p.user")
   //  @EntityGraph(attributePaths = {"user"})
   //  @Query("SELECT p FROM Purchase p")
-  @Query("SELECT DISTINCT p FROM Purchase p JOIN FETCH p.user")
+  @Query("SELECT p FROM Purchase p JOIN FETCH p.user")
   List<Purchase> findAllWithUsers();
 }
