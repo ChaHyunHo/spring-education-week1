@@ -6,7 +6,6 @@ import com.tutorial.springeducationweek1.domain.user.entity.User;
 import com.tutorial.springeducationweek1.domain.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
-import org.flywaydb.core.internal.util.JsonUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -93,11 +92,11 @@ class PurchaseRepositoryTest {
   void 조회() {
     List<Purchase> purchases = purchaseRepository.findAllWithUsers();
 
-//    for (Purchase p : purchases) {
-//      System.out.println(p.getUser().getName()); // ← 여기서 N+1 방지 되어야 함
-//    }
+    for (Purchase p : purchases) {
+      System.out.println(p.getUser().getName()); // ← 여기서 N+1 방지 되어야 함
+    }
 
-    System.out.println("purchases length:" + JsonUtils.toJson(purchases));
+    //System.out.println("purchases 0st id:" + purchases.get(0).getId());
 
 //    Purchase purchase = purchaseRepository.findById(1L)
 //        .orElseThrow(() -> new RuntimeException("주문내역이 없습니다."));
@@ -115,7 +114,12 @@ class PurchaseRepositoryTest {
 //    System.out.println("=============================================");
 //    System.out.println("n + 1 문제 해결을 위한 방법 [JPQL에서 join fetch 사용\n]");
 
-//    List<User> user2 = userRepository.findAllWithPurchases();
+    List<User> user2 = userRepository.findAllWithPurchases();
+
+    for (User user : user2) {
+      // user.getOrders()를 호출하는 순간, 각 User마다 쿼리 N번 발생
+      System.out.println("주문 개수: " + user.getEmail());
+    }
 //
 //    System.out.println("=============================================");
 //    System.out.println("=============================================");
