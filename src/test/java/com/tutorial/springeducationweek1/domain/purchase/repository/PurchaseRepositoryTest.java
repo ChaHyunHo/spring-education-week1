@@ -6,13 +6,13 @@ import com.tutorial.springeducationweek1.domain.user.entity.User;
 import com.tutorial.springeducationweek1.domain.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import org.flywaydb.core.internal.util.JsonUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 
-@Transactional // 실제 DB에 값을 쌓지 않기위해 선언함.
+// @Transactional // 실제 DB에 값을 쌓지 않기위해 선언함.
 @SpringBootTest
 class PurchaseRepositoryTest {
 
@@ -93,7 +93,11 @@ class PurchaseRepositoryTest {
   void 조회() {
     List<Purchase> purchases = purchaseRepository.findAllWithUsers();
 
-    System.out.println("purchases length:" + purchases.size());
+//    for (Purchase p : purchases) {
+//      System.out.println(p.getUser().getName()); // ← 여기서 N+1 방지 되어야 함
+//    }
+
+    System.out.println("purchases length:" + JsonUtils.toJson(purchases));
 
 //    Purchase purchase = purchaseRepository.findById(1L)
 //        .orElseThrow(() -> new RuntimeException("주문내역이 없습니다."));
