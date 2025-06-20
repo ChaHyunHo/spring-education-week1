@@ -17,8 +17,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -26,6 +28,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Table
 @Entity
+@Getter
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor
@@ -37,6 +40,7 @@ public class Purchase { // 주문
   Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  //@ManyToOne(fetch = FetchType.EAGER) // lazy loading을 쓰지않는경우 명시적으로 적어주는걸 권장한다.
   @JoinColumn(name = "user_id", nullable = false)
   User user;
 
@@ -55,6 +59,12 @@ public class Purchase { // 주문
   @Column(nullable = false, updatable = false)
   LocalDateTime updatedAt;
 
+  public void setStatus(PurchaseStatus status) {
+    if (!ObjectUtils.isEmpty(status)) {
+      this.status = status;
+    }
+
+  }
 
   @Builder
   public Purchase(

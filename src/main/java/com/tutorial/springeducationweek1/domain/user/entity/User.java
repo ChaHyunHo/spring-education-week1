@@ -51,7 +51,7 @@ public class User {
 
   @Builder // 빌더 패턴으로 객체를 생성할 수 있게 합니다.
   public User(
-      String username,
+      String name,
       String email,
       String passwordHash
   ) {
