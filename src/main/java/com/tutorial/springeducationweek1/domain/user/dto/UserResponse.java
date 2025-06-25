@@ -2,14 +2,16 @@ package com.tutorial.springeducationweek1.domain.user.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserRequest {
+public class UserResponse {
+
+  Long id;
 
   @NotNull(message = "Name must not be null")
   String name;
@@ -17,6 +19,5 @@ public class UserRequest {
   @Email(message = "Email should be valid")
   String email;
 
-  @Pattern(regexp = "^\\d{10}$", message = "Phone number must be 10 digits")
-  String password;
+  LocalDateTime createdAt;
 }

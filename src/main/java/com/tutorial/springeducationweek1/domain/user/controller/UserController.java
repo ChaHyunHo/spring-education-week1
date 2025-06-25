@@ -1,16 +1,16 @@
 package com.tutorial.springeducationweek1.domain.user.controller;
 
+import com.tutorial.springeducationweek1.common.response.ApiResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserRequest;
+import com.tutorial.springeducationweek1.domain.user.dto.UserResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserSearchResponse;
-import com.tutorial.springeducationweek1.domain.user.dto.UserUpdateStatusRequest;
+import com.tutorial.springeducationweek1.domain.user.dto.UserUpdateRequest;
 import com.tutorial.springeducationweek1.domain.user.service.UserService;
-import java.util.ArrayList;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,38 +27,36 @@ public class UserController {
 
   private final UserService userService;
 
-  @GetMapping("/{userId}")
-  public ResponseEntity<List<UserSearchResponse>> findAll(
+  @GetMapping
+  public ApiResponse<List<UserSearchResponse>> findAll(
       @RequestParam(name = "email") String name) {
+    return ApiResponse.success(userService.searchUser());
+  }
 
-    List<UserSearchResponse> userSearchResponseList = new ArrayList<>();
-    return ResponseEntity.ok().body(userSearchResponseList);
+  @GetMapping("/{userId}")
+  public ApiResponse<UserResponse> findById(
+      @PathVariable Long userId) {
+    return ApiResponse.success(userService.getUserById(userId));
   }
 
   @PostMapping
-  public ResponseEntity<Void> save(@RequestBody
+  public ApiResponse<Void> create(@RequestBody
   UserRequest request) {
-    userService.save();
-    return ResponseEntity.ok().build();
+    userService.create(request);
+    return ApiResponse.success();
   }
 
   @PutMapping("/{userId}")
-  public ResponseEntity<Void> update(@PathVariable Long userId, @RequestBody UserRequest request) {
-    userService.save();
-    return ResponseEntity.ok().build();
-  }
-
-  @PatchMapping("/{userId}")
-  public ResponseEntity<Void> updateStatus(@PathVariable Long userId,
-      @RequestBody UserUpdateStatusRequest request) {
-    userService.save();
-    return ResponseEntity.ok().build();
+  public ApiResponse<Void> update(@PathVariable Long userId,
+      @Valid @RequestBody UserUpdateRequest request) {
+    userService.update(userId, request);
+    return ApiResponse.success();
   }
 
   @DeleteMapping("/{userId}")
-  public ResponseEntity<Void> delete(@PathVariable Long userId) {
-    userService.save();
-    return ResponseEntity.ok().build();
+  public ApiResponse<Void> delete(@PathVariable Long userId) {
+    userService.delete(userId);
+    return ApiResponse.success();
   }
 
 }
