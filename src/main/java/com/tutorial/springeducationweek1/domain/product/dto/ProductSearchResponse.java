@@ -18,5 +18,4 @@ public class ProductSearchResponse {
   BigDecimal price;
   Integer stock;
   LocalDateTime createdAt;
-  LocalDateTime updatedAt;
 }

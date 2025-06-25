@@ -57,6 +57,6 @@ public class UserService {
 
   public User getUser(Long userId) {
     return userRepository.findById(userId)
-        .orElseThrow(() -> new ServiceException(ServiceExceptionCode.NOT_FOUNT_DATA));
+        .orElseThrow(() -> new ServiceException(ServiceExceptionCode.NOT_FOUNT_USER));
   }
 }

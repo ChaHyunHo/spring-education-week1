@@ -37,7 +37,7 @@ public class Category {
   @JoinColumn(name = "parent_id")
   @JsonBackReference
   Category parent;
-  
+
   @CreationTimestamp
   @Column(updatable = false)
   LocalDateTime createdAt;

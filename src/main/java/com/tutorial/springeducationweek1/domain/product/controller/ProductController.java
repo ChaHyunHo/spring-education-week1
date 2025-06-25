@@ -2,19 +2,16 @@ package com.tutorial.springeducationweek1.domain.product.controller;
 
 import com.tutorial.springeducationweek1.common.response.ApiResponse;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductCreateRequest;
-import com.tutorial.springeducationweek1.domain.product.dto.ProductCreateResponse;
-import com.tutorial.springeducationweek1.domain.product.dto.ProductRequest;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductSearchResponse;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductUpdateRequest;
-import com.tutorial.springeducationweek1.domain.product.dto.ProductUpdateResponse;
 import com.tutorial.springeducationweek1.domain.product.service.ProductService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import java.util.ArrayList;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,29 +27,30 @@ public class ProductController {
 
   @GetMapping
   public ApiResponse<List<ProductSearchResponse>> findAll() {
-    return ApiResponse.success(new ArrayList<ProductSearchResponse>());
+    return ApiResponse.success(productService.searchProducts());
   }
 
-  @PostMapping("/userId")
-  public ApiResponse<ProductCreateResponse> save(
-      @RequestBody ProductCreateRequest productCreateRequest) {
-    return ApiResponse.success(new ProductCreateResponse());
+  @GetMapping("/{productId}")
+  public ApiResponse<ProductSearchResponse> findById(@PathVariable Long productId) {
+    return ApiResponse.success(productService.getProductById(productId));
   }
 
-  @PutMapping("/userId")
-  public ApiResponse<ProductUpdateResponse> update(
-      @RequestBody ProductUpdateRequest productUpdateRequest) {
-    return ApiResponse.success(new ProductUpdateResponse());
+  @PostMapping
+  public ApiResponse<Void> save(@Valid @RequestBody ProductCreateRequest request) {
+    productService.create(request);
+    return ApiResponse.success();
   }
 
-  @PatchMapping("/userId")
-  public ApiResponse<ProductUpdateResponse> updateStatus(
-      @RequestBody ProductUpdateRequest productUpdateRequest) {
-    return ApiResponse.success(new ProductUpdateResponse());
+  @PutMapping("/{productId}")
+  public ApiResponse<Void> update(@PathVariable Long productId,
+      @RequestBody ProductUpdateRequest request) {
+    productService.update(productId, request);
+    return ApiResponse.success();
   }
 
-  @DeleteMapping("/userId")
-  public ApiResponse<ProductRequest> delete() {
+  @DeleteMapping("/{productId}")
+  public ApiResponse<Void> delete(@PathVariable Long productId) {
+    productService.delete(productId);
     return ApiResponse.success();
   }
 }
