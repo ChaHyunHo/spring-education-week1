@@ -9,11 +9,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
@@ -24,6 +27,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Table
 @Entity
+@Getter
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor
@@ -61,6 +65,21 @@ public class Product {
   @UpdateTimestamp // 엔티티 수정시 시간이 자동으로 기록됨
   @Column(nullable = false, updatable = false)
   LocalDateTime updatedAt;
+
+  @PrePersist
+  public void onPrePersist() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = this.createdAt;
+  }
+
+  @PreUpdate
+  public void onPreUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public void decreaseStock(Integer quantity) {
+    this.stock -= quantity;
+  }
 
 
   @Builder

@@ -4,4 +4,5 @@ public enum PurchaseStatus {
   PENDING,
   COMPLETION,
   CANCELLED,
+  REFUNDED, // 환불
 }

@@ -2,7 +2,7 @@ package com.tutorial.springeducationweek1.domain.product.service;
 
 import com.tutorial.springeducationweek1.common.exception.ServiceException;
 import com.tutorial.springeducationweek1.common.exception.ServiceExceptionCode;
-import com.tutorial.springeducationweek1.domain.product.dto.ProductCreateRequest;
+import com.tutorial.springeducationweek1.domain.product.dto.ProductRequest;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductSearchResponse;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductUpdateRequest;
 import com.tutorial.springeducationweek1.domain.product.entity.Product;
@@ -33,7 +33,7 @@ public class ProductService {
   }
 
   @Transactional
-  public void create(ProductCreateRequest request) {
+  public void create(ProductRequest request) {
     productRepository.save(productMapper.toEntity(request));
   }
 

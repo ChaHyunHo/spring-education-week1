@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -55,6 +57,17 @@ public class User {
 
   @OneToMany(mappedBy = "user")
   List<Purchase> purchases = new ArrayList<>();
+
+  @PrePersist
+  public void onPrePersist() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = this.createdAt;
+  }
+
+  @PreUpdate
+  public void onPreUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
 
   @Builder // 빌더 패턴으로 객체를 생성할 수 있게 합니다.
   public User(
