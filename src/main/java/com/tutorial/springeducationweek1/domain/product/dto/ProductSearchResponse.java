@@ -1,6 +1,6 @@
 package com.tutorial.springeducationweek1.domain.product.dto;
 
-import jakarta.validation.constraints.NotNull;
+import com.querydsl.core.annotations.QueryProjection;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -11,11 +11,21 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductSearchResponse {
 
-  @NotNull
-  Long id;
-  String name;
-  String description;
-  BigDecimal price;
-  Integer stock;
-  LocalDateTime createdAt;
+  final Long id;
+  final String name;
+  final String description;
+  final BigDecimal price;
+  final Integer stock;
+  final LocalDateTime createdAt;
+
+  @QueryProjection
+  public ProductSearchResponse(Long id, String name, String description, BigDecimal price,
+      Integer stock, LocalDateTime createdAt) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.stock = stock;
+    this.createdAt = createdAt;
+  }
 }

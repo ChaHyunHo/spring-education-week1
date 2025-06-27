@@ -2,12 +2,17 @@ package com.tutorial.springeducationweek1.domain.product.service;
 
 import com.tutorial.springeducationweek1.common.exception.ServiceException;
 import com.tutorial.springeducationweek1.common.exception.ServiceExceptionCode;
+import com.tutorial.springeducationweek1.domain.product.dto.CategoryOrderCountDTO;
+import com.tutorial.springeducationweek1.domain.product.dto.CategoryProductDTO;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductRequest;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductSearchResponse;
 import com.tutorial.springeducationweek1.domain.product.dto.ProductUpdateRequest;
 import com.tutorial.springeducationweek1.domain.product.entity.Product;
 import com.tutorial.springeducationweek1.domain.product.mapper.ProductMapper;
+import com.tutorial.springeducationweek1.domain.product.repository.CategoryProductQueryRepository;
 import com.tutorial.springeducationweek1.domain.product.repository.ProductRepository;
+import com.tutorial.springeducationweek1.domain.product.repository.ProductsQueryRepository;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +24,8 @@ public class ProductService {
 
   private final ProductMapper productMapper;
   private final ProductRepository productRepository;
+  private final ProductsQueryRepository productsQueryRepository;
+  private final CategoryProductQueryRepository categoryProductQueryRepository;
 
   @Transactional
   public List<ProductSearchResponse> searchProducts() {
@@ -53,5 +60,21 @@ public class ProductService {
   @Transactional
   public void delete(Long productId) {
     productRepository.deleteById(productId);
+  }
+
+  @Transactional
+  public List<CategoryOrderCountDTO> findCategoryOrderCounts() {
+    return productsQueryRepository.findCategoryOrderCounts();
+  }
+
+  @Transactional
+  public List<CategoryProductDTO> findCategoryProducts(String categoryName) {
+    return categoryProductQueryRepository.findCategoryProducts(categoryName);
+  }
+
+  @Transactional
+  public List<ProductSearchResponse> searchProduct(String name, BigDecimal minPrice,
+      BigDecimal maxPrice) {
+    return productsQueryRepository.searchProducts(name, minPrice, maxPrice);
   }
 }

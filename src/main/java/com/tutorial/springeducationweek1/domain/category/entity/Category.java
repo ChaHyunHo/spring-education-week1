@@ -9,9 +9,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
@@ -38,6 +44,9 @@ public class Category {
   @JsonBackReference
   Category parent;
 
+  @OneToMany(mappedBy = "parent")
+  private final List<Category> children = new ArrayList<>(); // 자식 카테고리 목록
+
   @CreationTimestamp
   @Column(updatable = false)
   LocalDateTime createdAt;
@@ -45,4 +54,22 @@ public class Category {
   @UpdateTimestamp // 엔티티 수정시 시간이 자동으로 기록됨
   @Column(nullable = false, updatable = false)
   LocalDateTime updatedAt;
+
+  @PrePersist
+  public void onPrePersist() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = this.createdAt;
+  }
+
+  @PreUpdate
+  public void onPreUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  @Builder
+  public Category(Long id, String name, Category parent) {
+    this.id = id;
+    this.name = name;
+    this.parent = parent;
+  }
 }
