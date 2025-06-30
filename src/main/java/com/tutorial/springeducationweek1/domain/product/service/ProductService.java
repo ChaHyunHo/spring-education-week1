@@ -1,5 +1,6 @@
 package com.tutorial.springeducationweek1.domain.product.service;
 
+import com.tutorial.springeducationweek1.common.annotation.ExecutionTime;
 import com.tutorial.springeducationweek1.common.exception.ServiceException;
 import com.tutorial.springeducationweek1.common.exception.ServiceExceptionCode;
 import com.tutorial.springeducationweek1.domain.product.dto.CategoryOrderCountDTO;
@@ -72,6 +73,7 @@ public class ProductService {
     return categoryProductQueryRepository.findCategoryProducts(categoryName);
   }
 
+  @ExecutionTime
   @Transactional
   public List<ProductSearchResponse> searchProduct(String name, BigDecimal minPrice,
       BigDecimal maxPrice) {
