@@ -25,6 +25,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.apache.commons.lang3.ObjectUtils;
 import org.hibernate.annotations.CreationTimestamp;
@@ -53,6 +54,7 @@ public class Purchase { // 주문
   @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true)
   List<PurchaseProduct> purchaseProducts = new ArrayList<>();
 
+  @Setter
   @Column
   BigDecimal totalPrice;
 
