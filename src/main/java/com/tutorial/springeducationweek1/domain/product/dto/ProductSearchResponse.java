@@ -1,5 +1,6 @@
 package com.tutorial.springeducationweek1.domain.product.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.querydsl.core.annotations.QueryProjection;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,6 +17,8 @@ public class ProductSearchResponse {
   final String description;
   final BigDecimal price;
   final Integer stock;
+
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
   final LocalDateTime createdAt;
 
   @QueryProjection

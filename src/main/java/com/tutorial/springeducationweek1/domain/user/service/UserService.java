@@ -2,7 +2,7 @@ package com.tutorial.springeducationweek1.domain.user.service;
 
 import com.tutorial.springeducationweek1.common.exception.ServiceException;
 import com.tutorial.springeducationweek1.common.exception.ServiceExceptionCode;
-import com.tutorial.springeducationweek1.domain.user.dto.UserRequest;
+import com.tutorial.springeducationweek1.domain.user.dto.UserCreateRequest;
 import com.tutorial.springeducationweek1.domain.user.dto.UserResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserSearchResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserUpdateRequest;
@@ -36,7 +36,7 @@ public class UserService {
   }
 
   @Transactional
-  public void create(UserRequest request) {
+  public void create(UserCreateRequest request) {
     userRepository.save(userMapper.toEntity(request));
   }
 
@@ -52,7 +52,8 @@ public class UserService {
 
   @Transactional
   public void delete(Long userId) {
-    userRepository.delete(getUser(userId));
+    User user = getUser(userId);
+    userRepository.delete(user);
   }
 
   public User getUser(Long userId) {

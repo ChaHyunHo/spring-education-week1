@@ -1,7 +1,7 @@
 package com.tutorial.springeducationweek1.domain.user.controller;
 
 import com.tutorial.springeducationweek1.common.response.ApiResponse;
-import com.tutorial.springeducationweek1.domain.user.dto.UserRequest;
+import com.tutorial.springeducationweek1.domain.user.dto.UserCreateRequest;
 import com.tutorial.springeducationweek1.domain.user.dto.UserResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserSearchResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserUpdateRequest;
@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -28,8 +27,7 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping
-  public ApiResponse<List<UserSearchResponse>> findAll(
-      @RequestParam(name = "email") String name) {
+  public ApiResponse<List<UserSearchResponse>> findAll() {
     return ApiResponse.success(userService.searchUser());
   }
 
@@ -40,8 +38,8 @@ public class UserController {
   }
 
   @PostMapping
-  public ApiResponse<Void> create(@RequestBody
-  UserRequest request) {
+  public ApiResponse<Void> create(@Valid @RequestBody
+  UserCreateRequest request) {
     userService.create(request);
     return ApiResponse.success();
   }

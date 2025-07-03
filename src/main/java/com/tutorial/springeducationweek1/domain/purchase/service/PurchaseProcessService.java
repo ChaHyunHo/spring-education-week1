@@ -50,7 +50,8 @@ public class PurchaseProcessService {
   private Purchase savePurchase(User user, String address) {
     return purchaseRepository.save(Purchase.builder()
         .user(user)
-        .status(PurchaseStatus.COMPLETION)
+        .totalPrice(BigDecimal.ZERO)
+        .status(PurchaseStatus.PENDING)
         .shippingAddress(address)
         .build());
   }
@@ -84,7 +85,7 @@ public class PurchaseProcessService {
 
   // 수량 검증
   private void validateStock(Product product, Integer quantity) {
-    if (quantity < product.getStock()) {
+    if (quantity > product.getStock()) {
       throw new ServiceException(ServiceExceptionCode.INSUFFICIENT_STOCK);
     }
   }

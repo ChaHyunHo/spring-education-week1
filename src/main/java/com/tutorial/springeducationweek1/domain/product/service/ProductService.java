@@ -28,9 +28,11 @@ public class ProductService {
   private final ProductsQueryRepository productsQueryRepository;
   private final CategoryProductQueryRepository categoryProductQueryRepository;
 
-  @Transactional
+  @Transactional(readOnly = true)
   public List<ProductSearchResponse> searchProducts() {
-    return productRepository.findAll().stream().map(productMapper::toSearch).toList();
+    return productRepository.findAll().stream()
+        .map(productMapper::toSearch)
+        .toList();
   }
 
   @Transactional
@@ -60,7 +62,9 @@ public class ProductService {
 
   @Transactional
   public void delete(Long productId) {
-    productRepository.deleteById(productId);
+    Product product = productRepository.findById(productId)
+        .orElseThrow(() -> new ServiceException(ServiceExceptionCode.NOT_FOUNT_PRODUCT));
+    productRepository.delete(product);
   }
 
   @Transactional

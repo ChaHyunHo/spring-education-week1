@@ -1,6 +1,6 @@
 package com.tutorial.springeducationweek1.domain.user.mapper;
 
-import com.tutorial.springeducationweek1.domain.user.dto.UserRequest;
+import com.tutorial.springeducationweek1.domain.user.dto.UserCreateRequest;
 import com.tutorial.springeducationweek1.domain.user.dto.UserResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserSearchResponse;
 import com.tutorial.springeducationweek1.domain.user.entity.User;
@@ -13,5 +13,5 @@ public interface UserMapper {
 
   UserSearchResponse toSearch(User user);
 
-  User toEntity(UserRequest userRequest);
+  User toEntity(UserCreateRequest userRequest);
 }

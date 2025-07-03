@@ -18,5 +18,5 @@ public class UserRequest {
   String email;
 
   @Pattern(regexp = "^\\d{10}$", message = "Phone number must be 10 digits")
-  String password;
+  String passwordHash;
 }

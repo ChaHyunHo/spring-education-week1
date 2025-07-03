@@ -1,7 +1,7 @@
 package com.tutorial.springeducationweek1.domain.purchase.controller;
 
 import com.tutorial.springeducationweek1.common.response.ApiResponse;
-import com.tutorial.springeducationweek1.domain.purchase.dto.PurchaseRequest;
+import com.tutorial.springeducationweek1.domain.purchase.dto.PurchaseProductsRequest;
 import com.tutorial.springeducationweek1.domain.purchase.service.PurchaseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +18,15 @@ public class PurchaseController {
   private final PurchaseService purchaseService;
 
   @PostMapping
-  public ApiResponse<Void> placePurchase(@Valid @RequestBody PurchaseRequest request) {
-    purchaseService.placePurchase(request);
+  public ApiResponse<Void> create(@Valid @RequestBody PurchaseProductsRequest request) {
+    purchaseService.createPurchase(request);
     return ApiResponse.success();
   }
+
+//  @GetMapping
+//  public Void findPurchase() {
+//
+//    return ApiResponse.success();
+//  }
 
 }
