@@ -81,6 +81,10 @@ public class Product {
     this.stock -= quantity;
   }
 
+  public void increaseStock(Integer quantity) {
+    this.stock += quantity;
+  }
+
 
   @Builder
   public Product(String name, String description, BigDecimal price, Integer stock) {

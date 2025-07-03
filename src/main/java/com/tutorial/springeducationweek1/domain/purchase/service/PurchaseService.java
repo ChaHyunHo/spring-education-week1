@@ -5,6 +5,8 @@ import com.tutorial.springeducationweek1.common.exception.ServiceException;
 import com.tutorial.springeducationweek1.common.exception.ServiceExceptionCode;
 import com.tutorial.springeducationweek1.domain.product.entity.Product;
 import com.tutorial.springeducationweek1.domain.product.repository.ProductRepository;
+import com.tutorial.springeducationweek1.domain.purchase.dto.PurchaseCancelRequest;
+import com.tutorial.springeducationweek1.domain.purchase.dto.PurchaseCancelResponse;
 import com.tutorial.springeducationweek1.domain.purchase.dto.PurchaseProductsRequest;
 import com.tutorial.springeducationweek1.domain.purchase.dto.PurchaseRequest;
 import com.tutorial.springeducationweek1.domain.purchase.entity.Purchase;
@@ -24,8 +26,8 @@ public class PurchaseService {
   private final UserRepository userRepository;
   private final PurchaseRepository purchaseRepository;
   private final ProductRepository productRepository;
-
-  private PurchaseProcessService purchaseProcessService;
+  private final PurchaseCancelService productCancelService;
+  private final PurchaseProcessService purchaseProcessService;
 
   // 단일 주문
   @Transactional
@@ -82,4 +84,11 @@ public class PurchaseService {
     purchaseProcessService.process(user, request.getShippingAddress(),
         request.getProductRequests());
   }
+
+  @Transactional
+  public PurchaseCancelResponse cancelPurchase(PurchaseCancelRequest request) {
+    return productCancelService.process(request.getPurchaseId(), request.getUserId());
+  }
+
+
 }
