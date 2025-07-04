@@ -31,7 +31,7 @@ public class PurchaseProcessService {
   // 리팩토링을 위한 주문 소스 세팅
   // 상품 복수 주문
   @Transactional
-  public void process(User user, String shippingAddress,
+  public Purchase process(User user, String shippingAddress,
       List<PurchaseProductRequest> productRequests) {
 
     // 주문내역 등록
@@ -44,6 +44,8 @@ public class PurchaseProcessService {
     // 총금액 계산
     BigDecimal totalPrice = calculateTotalPrice(purchaseProducts);
     purchase.setTotalPrice(totalPrice);
+
+    return purchase;
   }
 
   // 주문내역 생성
