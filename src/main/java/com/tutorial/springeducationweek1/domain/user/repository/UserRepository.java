@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
   @Query("SELECT u FROM User u JOIN FETCH u.purchases")
   List<User> findAllWithPurchases();
+
+  Optional<User> findByEmail(String email);
 }
