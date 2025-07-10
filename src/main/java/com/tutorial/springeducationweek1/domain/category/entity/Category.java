@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.DynamicInsert;
@@ -27,6 +29,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 @Table
 @Entity
+@Getter
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor
@@ -37,14 +40,16 @@ public class Category {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   Long id;
 
+  @Setter
   String name;
 
+  @Setter
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_id")
   @JsonBackReference
   Category parent;
 
-  @OneToMany(mappedBy = "parent")
+  @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
   private final List<Category> children = new ArrayList<>(); // 자식 카테고리 목록
 
   @CreationTimestamp
@@ -67,7 +72,7 @@ public class Category {
   }
 
   @Builder
-  public Category(Long id, String name, Category parent) {
+  public Category(Long id, String name, String description, Category parent) {
     this.id = id;
     this.name = name;
     this.parent = parent;

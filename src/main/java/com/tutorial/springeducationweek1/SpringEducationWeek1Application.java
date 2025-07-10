@@ -1,19 +1,16 @@
 package com.tutorial.springeducationweek1;
 
-import com.tutorial.springeducationweek1.domain.dto.CategoryFlatDto;
-import com.tutorial.springeducationweek1.domain.dto.CategoryTreeDto;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
+@EnableAsync
 @SpringBootApplication
 public class SpringEducationWeek1Application {
 
-    public static void main(String[] args) {
+  public static void main(String[] args) {
 
-        // 1. Flat한 리스트 준비
+    // 1. Flat한 리스트 준비
 //        List<CategoryFlatDto> flatList = List.of(
 //            new CategoryFlatDto(1L, "전자제품", null),
 //            new CategoryFlatDto(2L, "노트북", 1L),
@@ -59,8 +56,8 @@ public class SpringEducationWeek1Application {
 //        long mapEnd = System.nanoTime();
 //        System.out.println("Map 방식: " + ((mapEnd - mapStart) / 1_000_000.0) + " ms");
 
-        SpringApplication.run(SpringEducationWeek1Application.class, args);
-    }
+    SpringApplication.run(SpringEducationWeek1Application.class, args);
+  }
 
 //    public static void printTree(List<CategoryTreeDto> treeList, int depth) {
 //        for(CategoryTreeDto node : treeList) {
