@@ -1,6 +1,7 @@
 package com.tutorial.springeducationweek1.domain.user.controller;
 
 import com.tutorial.springeducationweek1.common.response.ApiResponse;
+import com.tutorial.springeducationweek1.domain.auth.dto.CustomUserDetails;
 import com.tutorial.springeducationweek1.domain.user.dto.UserCreateRequest;
 import com.tutorial.springeducationweek1.domain.user.dto.UserResponse;
 import com.tutorial.springeducationweek1.domain.user.dto.UserSearchResponse;
@@ -9,6 +10,7 @@ import com.tutorial.springeducationweek1.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +29,9 @@ public class UserController {
   private final UserService userService;
 
   @GetMapping
-  public ApiResponse<List<UserSearchResponse>> findAll() {
+  public ApiResponse<List<UserSearchResponse>> findAll(
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
     return ApiResponse.success(userService.searchUser());
   }
 

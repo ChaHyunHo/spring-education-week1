@@ -10,6 +10,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,10 @@ import org.hibernate.annotations.UpdateTimestamp;
 @DynamicUpdate // 변경된 필드만으로 UPDATE 쿼리를 생성합니다.
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class User {
+
+public class User implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   @Id // 이 필드가 테이블의 Primary Key(기본 키)입니다.
   @GeneratedValue(strategy = GenerationType.IDENTITY) // PK 생성을 DB의 AUTO_INCREMENT에 위임합니다.
