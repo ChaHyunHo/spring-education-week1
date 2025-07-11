@@ -6,10 +6,12 @@ import com.tutorial.springeducationweek1.domain.auth.dto.LoginRequest;
 import com.tutorial.springeducationweek1.domain.auth.dto.LoginResponse;
 import com.tutorial.springeducationweek1.domain.user.entity.User;
 import com.tutorial.springeducationweek1.domain.user.repository.UserRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,10 @@ public class AuthService {
     return LoginResponse.builder()
         .userId(user.getId())
         .email(request.getEmail())
+        .authorities(authentication.getAuthorities().stream().map(
+            GrantedAuthority::getAuthority).toList())
+        .timestamp(LocalDateTime.now())
+        .isAuthenticated(authentication.isAuthenticated())
         .build();
   }
 

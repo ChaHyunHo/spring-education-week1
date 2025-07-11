@@ -56,7 +56,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
               UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
               UsernamePasswordAuthenticationToken authenticationToken =
-                  new UsernamePasswordAuthenticationToken(userDetails,
+                  new UsernamePasswordAuthenticationToken(userDetails, null,
                       userDetails.getAuthorities());
               authenticationToken.setDetails(userDetails);
 
@@ -92,7 +92,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     String[] excludePaths = {
         "/api/auth/login",
         "/api/auth/logout",
-        "/api/auth/status",
+//        "/api/auth/status",
         "/api/users",
         "/api/users/availability",
         "/swagger-ui",

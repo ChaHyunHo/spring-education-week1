@@ -16,12 +16,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryService {
@@ -80,12 +82,13 @@ public class CategoryService {
       }
 
       List<CategorySearchResponse> categorySearchResponses = getCategoryHierarchy();
-      String json = objectMapper.writeValueAsString(categorySearchResponses);
-      jedisUtil.saveObject(CACHE_KEY_CARTEGORY_STRUCT, json, 3600);
+      jedisUtil.saveObject(CACHE_KEY_CARTEGORY_STRUCT, categorySearchResponses, 3600);
 
       return categorySearchResponses;
     } catch (Exception e) {
+      log.error(e.getMessage(), e);
       throw new RuntimeException("JSON 파싱 오류");
+
     }
   }
 
@@ -98,8 +101,7 @@ public class CategoryService {
       List<CategorySearchResponse> categorySearchResponses = getCategoryHierarchy();
 
       if (!ObjectUtils.isEmpty(categorySearchResponses)) {
-        String json = objectMapper.writeValueAsString(categorySearchResponses);
-        jedisUtil.saveObject(CACHE_KEY_CARTEGORY_STRUCT, json);
+        jedisUtil.saveObject(CACHE_KEY_CARTEGORY_STRUCT, categorySearchResponses);
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -122,9 +124,8 @@ public class CategoryService {
           .build();
 
       categorySearchResponses.add(newCategory);
-
-      String json = objectMapper.writeValueAsString(categorySearchResponses);
-      jedisUtil.saveObject(CACHE_KEY_CARTEGORY_STRUCT, json);
+      
+      jedisUtil.saveObject(CACHE_KEY_CARTEGORY_STRUCT, categorySearchResponses);
 
       saveToDatabaseAsync(request);
 
