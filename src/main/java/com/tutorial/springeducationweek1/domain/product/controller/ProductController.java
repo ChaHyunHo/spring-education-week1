@@ -9,8 +9,10 @@ import com.tutorial.springeducationweek1.domain.product.dto.ProductUpdateRequest
 import com.tutorial.springeducationweek1.domain.product.service.ProductService;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +32,12 @@ public class ProductController {
   private final ProductService productService;
 
   @GetMapping
-  public ApiResponse<List<ProductSearchResponse>> findAll() {
-    return ApiResponse.success(productService.searchProducts());
+  public ApiResponse<List<ProductSearchResponse>> findAll(
+      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastCreatedAt,
+      @RequestParam(required = false) Long lastId,
+      @RequestParam(defaultValue = "10") int size
+  ) {
+    return ApiResponse.success(productService.searchProducts(lastCreatedAt, lastId, size));
   }
 
   @GetMapping("/by-category/order-counts")

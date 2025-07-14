@@ -1,11 +1,10 @@
 package com.tutorial.springeducationweek1.global.aop;
 
-import com.tutorial.springeducationweek1.common.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
@@ -14,39 +13,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class LoggingAspect {
 
-  @Pointcut("execution(* com.tutorial.springeducationweek1.domain..*(..))")
+  // 서비스 계층 포인트컷
+  @Pointcut("execution(* com.tutorial.springeducationweek1.domain..*Service.*(..))")
   private void allServiceMethods() {
-
   }
 
-  @Before("execution(* com.tutorial.springeducationweek1.domain..controller..*(..))")
-  public void logBeforeApiExecution() {
-    log.info("[API-execution] API 메서드 실행 전 로그");
-  }
+  @Around("allServiceMethods()")
+  public Object logMethodExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
+    String methodName = joinPoint.getSignature().toShortString();
+    long start = System.currentTimeMillis();
 
-  @Before("allServiceMethods()")
-  public void logBeforeWithin() {
-    log.info("[API-within] domin 패키지 내부 메서드 실행 전 로그");
-  }
-
-  @Before("@annotation(com.tutorial.springeducationweek1.common.annotation.Loggable)")
-  public void logBeforeAnnotation() {
-    log.info("[@annotation] @Loggable 어노테이션 적용된 메서드 실행 전 로그");
-  }
-
-  @Before("execution(* com.tutorial.springeducationweek1.domain..*(..))")
-  public void logMethodDetails(JoinPoint joinPoint) {
-    log.info("[joinPoint 활용] 실행된 메서드 이름: {}", joinPoint.getSignature().getName());
-    Object[] args = joinPoint.getArgs();
-
-    if (args.length > 0) {
-      log.info("[JoinPoint 활용 전달된 파라미터: {}", args);
+    try {
+      Object result = joinPoint.proceed(); // 실제 메서드 실행
+      long end = System.currentTimeMillis();
+      log.info("[메소드명 : {}] 실행 시간: {} ms", methodName, end - start);
+      return result;
+    } catch (Throwable throwable) {
+      log.error("예외 발생: [{}] threw exception: {}", methodName, throwable.getMessage());
+      throw throwable;
     }
   }
 
   @AfterThrowing(pointcut = "allServiceMethods()", throwing = "serviceException")
-  public void logServiceException(ServiceException serviceException) {
-    log.error("Service Layer Exception: Code = [{}], Message = [{}]",
+  public void logServiceException(
+      com.tutorial.springeducationweek1.common.exception.ServiceException serviceException) {
+    log.error("서비스 계층 예외 발생: Code = [{}], Message = [{}]",
         serviceException.getCode(), serviceException.getMessage());
 
   }

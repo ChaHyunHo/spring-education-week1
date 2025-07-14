@@ -14,8 +14,10 @@ import com.tutorial.springeducationweek1.domain.product.repository.CategoryProdu
 import com.tutorial.springeducationweek1.domain.product.repository.ProductRepository;
 import com.tutorial.springeducationweek1.domain.product.repository.ProductsQueryRepository;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,8 +31,11 @@ public class ProductService {
   private final CategoryProductQueryRepository categoryProductQueryRepository;
 
   @Transactional(readOnly = true)
-  public List<ProductSearchResponse> searchProducts() {
-    return productRepository.findAll().stream()
+  public List<ProductSearchResponse> searchProducts(LocalDateTime lastCreatedAt, Long lastId,
+      int size) {
+    List<Product> products = productRepository.findByCursor(lastCreatedAt, lastId,
+        Pageable.ofSize(size));
+    return products.stream()
         .map(productMapper::toSearch)
         .toList();
   }
