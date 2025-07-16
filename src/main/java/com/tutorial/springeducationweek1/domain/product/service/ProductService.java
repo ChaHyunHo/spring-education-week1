@@ -31,7 +31,7 @@ public class ProductService {
   private final CategoryProductQueryRepository categoryProductQueryRepository;
 
   @Transactional(readOnly = true)
-  public List<ProductSearchResponse> searchProducts(LocalDateTime lastCreatedAt, Long lastId,
+  public List<ProductSearchResponse> findByCursor(LocalDateTime lastCreatedAt, Long lastId,
       int size) {
     List<Product> products = productRepository.findByCursor(lastCreatedAt, lastId,
         Pageable.ofSize(size));

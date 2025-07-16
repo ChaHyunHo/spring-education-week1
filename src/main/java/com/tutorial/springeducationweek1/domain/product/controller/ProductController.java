@@ -32,12 +32,12 @@ public class ProductController {
   private final ProductService productService;
 
   @GetMapping
-  public ApiResponse<List<ProductSearchResponse>> findAll(
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime lastCreatedAt,
+  public ApiResponse<List<ProductSearchResponse>> findByCursor(
+      @RequestParam(required = false) @DateTimeFormat(pattern = "yyyyMMddHHmmss") LocalDateTime lastCreatedAt,
       @RequestParam(required = false) Long lastId,
       @RequestParam(defaultValue = "10") int size
   ) {
-    return ApiResponse.success(productService.searchProducts(lastCreatedAt, lastId, size));
+    return ApiResponse.success(productService.findByCursor(lastCreatedAt, lastId, size));
   }
 
   @GetMapping("/by-category/order-counts")
