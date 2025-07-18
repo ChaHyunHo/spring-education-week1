@@ -53,6 +53,12 @@ springdoc:
   swagger-ui:
     enabled: true
 
+# 마이바티스 설정
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mappers/*.xml
+  type-aliases-package: com.tutorial.springeducationweek1
 
 
 server:
