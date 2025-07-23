@@ -87,7 +87,9 @@ public class Product {
 
 
   @Builder
-  public Product(String name, String description, BigDecimal price, Integer stock) {
+  public Product(Category category, String name, String description, BigDecimal price,
+      Integer stock) {
+    this.category = category;
     this.name = name;
     this.description = description;
     this.price = price;

@@ -27,4 +27,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       @Param("lastId") Long lastId,
       Pageable pageable
   );
+
+  List<Product> findAllByStockGreaterThan(Integer stock);
 }
