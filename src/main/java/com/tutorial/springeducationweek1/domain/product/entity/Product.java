@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -71,6 +72,10 @@ public class Product {
     this.createdAt = LocalDateTime.now();
     this.updatedAt = this.createdAt;
   }
+
+  @Version  // 버전 필드 추가
+  private Integer version = 0;
+
 
   @PreUpdate
   public void onPreUpdate() {
